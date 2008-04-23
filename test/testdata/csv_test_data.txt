@@ -1,0 +1,26 @@
+Series Id,Year,Period,Value,
+CXUAI000101,1984,Annual,21237(1)
+CXUAI000101,1985,Annual,22887(1)
+CXUAI000101,1986,Annual,23172(1)
+CXUAI000101,1987,Annual,24871(1)
+CXUAI000101,1988,Annual,26149(1)
+CXUAI000101,1989,Annual,28496(1)
+CXUAI000101,1990,Annual,28937(1)
+CXUAI000101,1991,Annual,30729(1)
+CXUAI000101,1992,Annual,30786(1)
+CXUAI000101,1993,Annual,31890(1)
+CXUAI000101,1994,Annual,33098(1)
+CXUAI000101,1995,Annual,33864(1)
+CXUAI000101,1996,Annual,34864(1)
+CXUAI000101,1997,Annual,36684(1)
+CXUAI000101,1998,Annual,38358(1)
+CXUAI000101,1999,Annual,40652(1)
+CXUAI000101,2000,Annual,41532(1)
+CXUAI000101,2001,Annual,44587(1)
+CXUAI000101,2002,Annual,46934(1)
+CXUAI000101,2003,Annual,48596(1)
+CXUAI000101,2004,Annual,52287
+CXUAI000101,2005,Annual,56304
+CXUAI000101,2006,Annual,58101
+
+1 : Components of income and taxes are derived from "complete income reporters" only through 2003; (see glossary). Beginning in 2004 income imputation was implemented. As a result, all consumer units are considered to be complete income reporters.

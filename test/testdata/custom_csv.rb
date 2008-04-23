@@ -1,0 +1,1 @@
+@data = CSV.parse(text)
