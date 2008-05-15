@@ -1,20 +1,32 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+require "dataset/table"
+require "dataset/number"
+
 # Table should be independent of the details of the pipeline output; glue code to construct
 # a Table from the recipe runlog should be outside of this class.
 
-describe Table, "on construction" do
+describe "role extraction" do
   it "should determine column roles from pipeline runlog" do
-    table = Table.new([{:chron => Dataset::Chron::YYYYMM}, {:units => Dataset::Number::Dollars}])
+  end
+
+  it "should extract role info from column metadata" do
+    table = Dataset::Table.new([{:chron => Dataset::Chron::YYYYMM}, {:units => Dataset::Number::Dollars}])
 
     table.columns.size.should == 2
+
+    table.chron_columns.size == 1
     table.chron?.should be_true
     table.chron.should == Dataset::Chron::YYYYMM
+
+    table.dimension_columns.size == 1
     table.dimensions.empty?.should be_true
+
+    table.measure_columns.size == 1
     table.measures.any?.should be_true
     table.measure?.should be_true
-    table.measure.first.multiplier.should == :ones
-    table.measure.first.units.should == Dataset::Units::Dollars
+    # table.measure.multiplier.should == :ones
+    # table.measure.units.should == Dataset::Units::Dollars
   end
 end
 
@@ -24,7 +36,7 @@ end
 # * construct the recipe for an operation (for validation)
 # * execute an operation
 
-describe Table, "with YYYYMM/measure" do
+describe "with YYYYMM/measure" do
   before(:all) do
     @table = Table.new([{:chron => Dataset::Chron::YYYYMM}, {:units => Dataset::Number::Dollars}])
   end
