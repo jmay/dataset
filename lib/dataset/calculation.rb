@@ -72,8 +72,8 @@ module Dataset
         [{
           :command => 'deltas',
           :args => {
-            :ordercol => 0,
-            :datacol => 1,
+            :ordercol => @target.chron_columns.first[:colnum],
+            :datacol => @target.measure_columns.first[:colnum],
             :interval => self.class.intervals[@target.chron],
             :percent => true
           }
@@ -167,7 +167,7 @@ module Dataset
     end
 
     def ready?
-      @target && dimension_name && dimension_value && @target.dimensions.map{|dim| dim.name}.include?(dimension_name)
+      @target && dimension_name && dimension_value && !@target.dimension_column(dimension_name).nil?
     end
 
     def recipe
@@ -175,7 +175,7 @@ module Dataset
         [{
           :command => 'filter',
           :args => {
-            :column => 0, # column number for this dimension
+            :column => @target.dimension_column(dimension_name)[:colnum],
             :value => @dimension_value,
           },
         }]

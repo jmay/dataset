@@ -9,3 +9,7 @@ require "dataset/unit"
 require "dataset/dimension"
 require "dataset/source"
 require "dataset/dataset"
+
+require "dataset/number"
+require "dataset/table"
+require "dataset/calculation"

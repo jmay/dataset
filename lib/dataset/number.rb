@@ -1,5 +1,10 @@
-require "delegate"
+# require "delegate"
 
+# how to use a Number:
+#  number = Number::Subclass.new("numeric-string")
+#  number.value # output the numeric value as a Fixnum or Float (whichever is appropriate)
+#  number.to_s # output the value formatted appropriately (commas, %, $, etc.)
+#
 module Dataset
   module Number
     class Base
@@ -9,7 +14,12 @@ module Dataset
       end
 
       def method_missing(meth, *args, &block)
-        (@value * (options[:multiplier] || 1)).send meth, *args, &block
+        return super unless @value.respond_to?(meth)
+        value.send meth, *args, &block
+      end
+
+      def value
+        @value * (@options[:multiplier] || 1)
       end
 
       def to_s
@@ -70,8 +80,12 @@ module Dataset
       end
     end
 
-    class Money
-      
+    # float, format output with leading '$'; for negatives, minus sign before the '$'
+    class Dollars < Base
+      def initialize(num, options = {})
+        options[:format] = "%.2f"
+        super(num, options)
+      end
     end
 
     # a positive float, measuring time in seconds?
@@ -80,10 +94,10 @@ module Dataset
     end
 
 
-    COUNT_FORMAT = "%d"
-    FLOAT_FORMAT = "%.2f"
-    PERCENT_FORMAT
-    DIFF_FORMAT
+    # COUNT_FORMAT = "%d"
+    # FLOAT_FORMAT = "%.2f"
+    # PERCENT_FORMAT = "%.2f%%"
+    # DIFF_FORMAT
 
     class Formatter
       def initialize(format)

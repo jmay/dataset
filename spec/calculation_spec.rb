@@ -1,8 +1,5 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
-require "dataset/calculation"
-require "dataset/chron"
-
 describe 'calculations' do
   it "should return nil on invalid descriptors" do
     Dataset::Calculation.find('bogus').should be_nil
@@ -34,13 +31,16 @@ describe "monthly deltas calculation" do
   it "should build recipe & run" do
     @calc.should respond_to(:target)
     @calc.should_not be_ready
-    @calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+
+    table = Dataset::Table.new([
+      {:chron => Dataset::Chron:: YYYYMM},
+      {:units => Dataset::Number::Count}
+       ])
+    @calc.target(table)
+    # table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    # table.
     @calc.should be_ready
-    recipe = @calc.recipe
-    recipe.size.should == 1
-    recipe.first[:args][:percent].should be_true
-    recipe.first[:args][:interval].should == 1
+    @calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 1, :percent => true }}]
     @calc.should respond_to(:execute)
   end
 
@@ -132,21 +132,16 @@ describe "extract calculation" do
   it "should barf when target has no dimensions" do
     calc = Dataset::Calculation.find("extract-State-California")
 
-    calc.target(table = mock)
-    table.stubs(:dimensions).returns([])
+    calc.target(table = Dataset::Table.new([{:chron => Dataset::Chron::YYYY}, {:units => Dataset::Number::Count}]))
     calc.should_not be_ready
 
-    calc.target(table = mock)
-    table.stubs(:dimensions).returns([ dim = mock ])
-    dim.stubs(:name).returns('Department')
+    calc.target(table = Dataset::Table.new([:name => 'Department']))
     calc.should_not be_ready
   end
 
   it "should barf when target has no matching dimension" do
     calc = Dataset::Calculation.find("extract-State-California")
-    calc.target(table = mock)
-    table.stubs(:dimensions).returns([ dim = mock ])
-    dim.stubs(:name).returns('Department')
+    calc.target(table = Dataset::Table.new([:name => 'Department']))
     calc.should_not be_ready
   end
 
@@ -160,9 +155,10 @@ describe "extract calculation" do
 
   it "should work when target has the right dimension" do
     calc = Dataset::Calculation.find("extract-State-California")
-    calc.target(table = mock)
-    table.stubs(:dimensions).returns([dim = mock])
-    dim.stubs(:name).returns('State')
+    table = Dataset::Table.new([{:name => 'State'}, {:units => Dataset::Number::Count}])
+    calc.target(table)
+    # table.stubs(:dimensions).returns([dim = mock])
+    # dim.stubs(:name).returns('State')
     calc.should be_ready
 
     calc.recipe.should == [{:command => 'filter', :args => { :column => 0, :value => 'California' }}]
