@@ -28,19 +28,28 @@ describe "monthly deltas calculation" do
     @calc = Dataset::Calculation.find("chg-pct-mon")
   end
 
+  it "should give the right class" do
+    @calc.class.should == Dataset::MonthlyDeltas
+  end
+
   it "should build recipe & run" do
     @calc.should respond_to(:target)
     @calc.should_not be_ready
 
     table = Dataset::Table.new([
       {:chron => 'YYYYMM'},
-      {:number => 'Count'}
+      {:number => 'Count',
+        :label => 'Sales'}
        ])
     @calc.target(table)
     # table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
     # table.
     @calc.should be_ready
     @calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 1, :percent => true }}]
+    newtable = @calc.resultspec
+    newtable.columns.size.should == 2
+    newtable.chron.should == Dataset::Chron::YYYYMM
+    newtable.measure_column.label.should == 'Monthly change in Sales'
     @calc.should respond_to(:execute)
   end
 

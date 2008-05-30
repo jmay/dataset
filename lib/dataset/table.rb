@@ -103,6 +103,10 @@ module Dataset
       @metadata[key] = value
     end
 
+    def label
+      @metadata[:label]
+    end
+
     def interpret(value)
       if @metadata[:chron]
         @metadata[:chron].new(:index => value)

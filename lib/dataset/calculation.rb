@@ -81,6 +81,14 @@ module Dataset
       end
     end
 
+    def resultspec
+      Table.new([
+        { :chron => @target.chron },
+        { :number => Number::Percentage,
+          :label => "Monthly change in #{@target.measure_column.label}" }
+        ])
+    end
+
     def ready?
       @target && !self.class.intervals[@target.chron].nil?
     end

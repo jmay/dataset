@@ -34,6 +34,13 @@ describe "role extraction" do
     # table.measure.multiplier.should == :ones
     # table.measure.units.should == Dataset::Units::Dollars
   end
+
+  it "should handle label attributes for columns" do
+    table = Dataset::Table.new([
+      {:label => 'State'},
+      {:number => 'Count', :label => 'Population', :multiplier => 'thousands'}
+      ])
+  end
 end
 
 describe "table construction from pipeline runlog" do
