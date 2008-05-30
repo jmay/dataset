@@ -32,7 +32,11 @@ module Dataset
       def initialize(num, options = {})
         # raise "Must be non-negative" if num < 0
         options[:format] = "%d"
-        super(num, options)
+        super(num.is_a?(String) ? Count.convert(num) : num, options)
+      end
+
+      def Count.convert(str)
+        str.gsub(/(\d),(\d)/, '\1\2').to_i
       end
     end
 
@@ -40,7 +44,11 @@ module Dataset
     class Quantity < Base
       def initialize(num, options = {})
         options[:format] ||= "%.2f" # default is two decimals
-        super(num, options)
+        super(num.is_a?(String) ? Quantity.convert(num) : num, options)
+      end
+
+      def Quantity.convert(str)
+        str.gsub(/(\d),(\d)/, '\1\2').to_f
       end
     end
 
@@ -49,7 +57,11 @@ module Dataset
       def initialize(num, options = {})
         options[:format] ||= "%.0f%%" # default is zero decimals
         options[:multiplier] = 0.01
-        super(num, options)
+        super(num.is_a?(String) ? Percentage.convert(num) : num, options)
+      end
+
+      def Percentage.convert(str)
+        Quantity.convert(str.gsub(/%^/, ''))
       end
     end
 

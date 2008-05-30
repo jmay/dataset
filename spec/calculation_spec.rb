@@ -33,8 +33,8 @@ describe "monthly deltas calculation" do
     @calc.should_not be_ready
 
     table = Dataset::Table.new([
-      {:chron => Dataset::Chron:: YYYYMM},
-      {:units => Dataset::Number::Count}
+      {:chron => 'YYYYMM'},
+      {:number => 'Count'}
        ])
     @calc.target(table)
     # table.stubs(:chron).returns(Dataset::Chron::YYYYMM)

@@ -72,8 +72,8 @@ module Dataset
         [{
           :command => 'deltas',
           :args => {
-            :ordercol => @target.chron_columns.first[:colnum],
-            :datacol => @target.measure_columns.first[:colnum],
+            :ordercol => @target.chron_columns.first.colnum,
+            :datacol => @target.measure_columns.first.colnum,
             :interval => self.class.intervals[@target.chron],
             :percent => true
           }
@@ -175,7 +175,7 @@ module Dataset
         [{
           :command => 'filter',
           :args => {
-            :column => @target.dimension_column(dimension_name)[:colnum],
+            :column => @target.dimension_column(dimension_name).colnum,
             :value => @dimension_value,
           },
         }]

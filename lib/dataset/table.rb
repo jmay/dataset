@@ -3,9 +3,9 @@ module Dataset
     attr_reader :columns
 
     def initialize(columns)
-      @columns = columns.map {|col| TableColumn.new(col)}
+      @columns = columns.map_with_index {|coldata, colnum| TableColumn.new(:metadata => coldata, :colnum => colnum)}
       @columns.each {|col| colclean(col)}
-      @columns.each_with_index {|col, i| col[:colnum] = i}
+      # @columns.each_with_index {|col, i| col[:colnum] = i}
     end
 
     def self.from_runlog(runlog)
@@ -19,18 +19,29 @@ module Dataset
     def colclean(col)
       if col[:chron] && col[:chron].is_a?(String)
         col[:chron] = Chron.const_get(col[:chron])
+      elsif col[:number] && col[:number].is_a?(String)
+        col[:number] = Number.const_get(col[:number])
       end
     end
 
-    def generate(file)
-      File.open(file).each_line do |line|
+    def datafile=(filename)
+      @datafile = filename
+    end
+
+    def load
+      File.open(@datafile).each_line do |line|
         fields = line.chomp.split("\t")
-        @columns.map_with_index {|col, i| col.data << col.interpret(fields[i])}
+        # @columns.map_with_index {|col, i| col.data << col.interpret(fields[i])}
+        @columns.zip(fields).map {|col, v| col.data << col.interpret(v)}
       end
     end
 
     def chron_columns
       columns.find_all {|col| !col[:chron].nil?}
+    end
+
+    def chron_column
+      chron_columns.any? ? chron_columns.first : nil
     end
 
     def chron?
@@ -42,7 +53,7 @@ module Dataset
     end
 
     def dimension_columns
-      columns.find_all {|col| !col[:chron] && !col[:units]}
+      columns.find_all {|col| !col[:chron] && !col[:number]}
     end
 
     def dimensions
@@ -54,11 +65,15 @@ module Dataset
     end
 
     def measure_columns
-      columns.find_all {|col| !col[:units].nil?}
+      columns.find_all {|col| !col[:number].nil?}
+    end
+
+    def measure_column
+      measure_columns.any? ? measure_columns.first : nil
     end
 
     def measures
-      measure_columns.map {|col| col[:units]}
+      measure_columns.map {|col| col[:number]}
     end
 
     def measure?
@@ -72,9 +87,11 @@ module Dataset
 
   class TableColumn
     attr_reader :metadata, :data
+    attr_reader :colnum
 
-    def initialize(coldata)
-      @metadata = coldata
+    def initialize(args)
+      @metadata = args[:metadata]
+      @colnum = args[:colnum]
       @data = []
     end
 
@@ -89,6 +106,8 @@ module Dataset
     def interpret(value)
       if @metadata[:chron]
         @metadata[:chron].new(:index => value)
+      elsif @metadata[:number]
+        @metadata[:number].new(value)
       else
         value
       end
