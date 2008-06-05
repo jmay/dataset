@@ -1,28 +1,48 @@
 module Dataset
   class Table
-    attr_reader :columns
+    attr_reader :nrows  # table-global metadata
+    attr_reader :columns  # array containing per-column metadata
 
-    def initialize(columns)
-      @columns = columns.map_with_index {|coldata, colnum| TableColumn.new(:metadata => coldata, :colnum => colnum)}
-      @columns.each {|col| colclean(col)}
+    def initialize(args = {})
+      @nrows = args[:nrows]
+      @columns = args[:columns].map_with_index {|coldata, colnum| TableColumn.new(:metadata => coldata, :colnum => colnum)}
+      # @columns.each {|col| colclean(col)}
       # @columns.each_with_index {|col, i| col[:colnum] = i}
     end
 
     def self.from_runlog(runlog)
-      columndata = runlog['stagelogs'].map{|v| v[:columns] || []}
+      stagedata = runlog['stagelogs']
+      nrows = stagedata.map{|stage| stage[:nrows]}.compact.last
+
+      columndata = stagedata.map{|v| v[:columns] || []}
       ncols = columndata.map{|cols| cols.size}.max
-      columndata.each {|col| col[ncols-1] ||= {}}
-      merged_coldata = columndata.transpose.map {|attrs| attrs.inject({}) {|memo, d| memo.merge(d || {})}}
-      Table.new(merged_coldata)
+      merged_coldata = []
+      if ncols > 0
+        columndata.each {|col| col[ncols-1] ||= {}}
+        merged_coldata = columndata.transpose.map {|attrs| attrs.inject({}) {|memo, d| memo.merge(d || {})}}
+      end
+      Table.new(:columns => merged_coldata, :nrows => nrows)
     end
 
-    def colclean(col)
-      if col[:chron] && col[:chron].is_a?(String)
-        col[:chron] = Chron.const_get(col[:chron])
-      elsif col[:number] && col[:number].is_a?(String)
-        col[:number] = Number.const_get(col[:number])
+    def merge(table2)
+      [:nrows].each do |attr|
+        if table2.send(attr)
+          self.instance_eval("@#{attr} = table2.#{attr}")
+        end
+        # self.send("#{attr}=", table2.send(attr)) if table2.send(attr)
+      end
+      table2.columns.each_with_index do |col, i|
+        self.columns[i].merge(col)
       end
     end
+
+    # def colclean(col)
+    #   # if col[:chron] && col[:chron].is_a?(String)
+    #   #   col[:chron] = Chron.const_get(col[:chron])
+    #   # elsif col[:number] && col[:number].is_a?(String)
+    #   #   col[:number] = Number.const_get(col[:number])
+    #   # end
+    # end
 
     def datafile=(filename)
       @datafile = filename
@@ -34,6 +54,13 @@ module Dataset
         # @columns.map_with_index {|col, i| col.data << col.interpret(fields[i])}
         @columns.zip(fields).map {|col, v| col.data << col.interpret(v)}
       end
+    end
+
+    # a table is NSF if:
+    # * at most one (explicitly-specified-as-)chron column
+    # * at least one (explicitly-specified-as-)number column
+    def nsf?
+      (chron_columns.size <= 1) && (measure_columns.size >= 1)
     end
 
     def chron_columns
@@ -49,7 +76,7 @@ module Dataset
     end
 
     def chron
-      chron_columns.first[:chron]
+      Chron.const_get(chron_columns.first[:chron]) rescue nil
     end
 
     def dimension_columns
@@ -81,7 +108,7 @@ module Dataset
     end
 
     def measure
-      measures.first
+      Number.const_get(measures.first)
     end
   end
 
@@ -93,6 +120,10 @@ module Dataset
       @metadata = args[:metadata]
       @colnum = args[:colnum]
       @data = []
+    end
+
+    def merge(col2)
+      metadata.merge!(col2.metadata)
     end
 
     def [](key)
@@ -109,12 +140,20 @@ module Dataset
 
     def interpret(value)
       if @metadata[:chron]
-        @metadata[:chron].new(:index => value)
+        # @metadata[:chron].new(:index => value)
+        Chron.const_get(@metadata[:chron]).new(:index => value)
       elsif @metadata[:number]
-        @metadata[:number].new(value)
+        Number.const_get(@metadata[:number]).new(value)
       else
         value
       end
     end
   end
+end
+
+if $0 == __FILE__
+  require "dataset"
+  y = YAML.load($stdin)
+  table = Dataset::Table.from_runlog(y)
+  puts table.to_yaml
 end
