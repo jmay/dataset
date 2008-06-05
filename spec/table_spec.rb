@@ -78,9 +78,18 @@ describe "table construction from pipeline runlog" do
 
   it "should interpret data from NSF according to the metadata" do
     runlog = YAML.load_file(File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/runlog')
+    datafile = File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/output'
     table = Dataset::Table.from_runlog(runlog)
-    table.datafile = File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/output'
-    table.load
+
+    # process as stream
+    table.read(datafile) do |row|
+      row.size.should == 2
+      row[0].should be_instance_of(Dataset::Chron::YYYYMM)
+      row[1].should be_instance_of(Dataset::Number::Quantity)
+    end
+
+    # process entire file as batch
+    table.load(datafile)
     table.columns[0].data.size.should == 530
     table.columns[0].data.each {|v| v.should be_instance_of(Dataset::Chron::YYYYMM)}
     table.columns[1].data.size.should == 530

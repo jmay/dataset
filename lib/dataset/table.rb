@@ -1,5 +1,5 @@
 # TODO: consider renaming Table to TableSpec or Tablespec
-
+# TODO: user-provided vs system-automated metadata, esp. user-provided column labels
 module Dataset
   class Table
     attr_reader :nrows  # table-global metadata
@@ -8,8 +8,6 @@ module Dataset
     def initialize(args = {})
       @nrows = args[:nrows]
       @columns = args[:columns].map_with_index {|coldata, colnum| TableColumn.new(:metadata => coldata, :colnum => colnum)}
-      # @columns.each {|col| colclean(col)}
-      # @columns.each_with_index {|col, i| col[:colnum] = i}
     end
 
     def self.from_runlog(runlog)
@@ -27,33 +25,25 @@ module Dataset
     end
 
     def merge(table2)
-      [:nrows].each do |attr|
-        if table2.send(attr)
-          self.instance_eval("@#{attr} = table2.#{attr}")
-        end
-        # self.send("#{attr}=", table2.send(attr)) if table2.send(attr)
-      end
+      @nrows = table2.nrows if table2.nrows
+
       table2.columns.each_with_index do |col, i|
         self.columns[i].merge(col)
       end
     end
 
-    # def colclean(col)
-    #   # if col[:chron] && col[:chron].is_a?(String)
-    #   #   col[:chron] = Chron.const_get(col[:chron])
-    #   # elsif col[:number] && col[:number].is_a?(String)
-    #   #   col[:number] = Number.const_get(col[:number])
-    #   # end
-    # end
-
-    def datafile=(filename)
-      @datafile = filename
+    # process file as stream
+    def read(datafile, &block)
+      File.open(datafile).each_line do |line|
+        fields = line.chomp.split("\t")
+        yield(@columns.zip(fields).map {|col, v| col.interpret(v)})
+      end
     end
 
-    def load
-      File.open(@datafile).each_line do |line|
+    # process file as a batch
+    def load(datafile)
+      File.open(datafile).each_line do |line|
         fields = line.chomp.split("\t")
-        # @columns.map_with_index {|col, i| col.data << col.interpret(fields[i])}
         @columns.zip(fields).map {|col, v| col.data << col.interpret(v)}
       end
     end
