@@ -36,7 +36,7 @@ describe "monthly deltas calculation" do
     @calc.should respond_to(:target)
     @calc.should_not be_ready
 
-    table = Dataset::Table.new([
+    table = Dataset::Table.new(:columns => [
       {:chron => 'YYYYMM'},
       {:number => 'Count',
         :label => 'Sales'}
@@ -141,16 +141,16 @@ describe "extract calculation" do
   it "should barf when target has no dimensions" do
     calc = Dataset::Calculation.find("extract-State-California")
 
-    calc.target(table = Dataset::Table.new([{:chron => Dataset::Chron::YYYY}, {:units => Dataset::Number::Count}]))
+    calc.target(table = Dataset::Table.new(:columns => [{:chron => Dataset::Chron::YYYY}, {:units => Dataset::Number::Count}]))
     calc.should_not be_ready
 
-    calc.target(table = Dataset::Table.new([:name => 'Department']))
+    calc.target(table = Dataset::Table.new(:columns => [:name => 'Department']))
     calc.should_not be_ready
   end
 
   it "should barf when target has no matching dimension" do
     calc = Dataset::Calculation.find("extract-State-California")
-    calc.target(table = Dataset::Table.new([:name => 'Department']))
+    calc.target(table = Dataset::Table.new(:columns => [:name => 'Department']))
     calc.should_not be_ready
   end
 
@@ -164,7 +164,7 @@ describe "extract calculation" do
 
   it "should work when target has the right dimension" do
     calc = Dataset::Calculation.find("extract-State-California")
-    table = Dataset::Table.new([{:name => 'State'}, {:units => Dataset::Number::Count}])
+    table = Dataset::Table.new(:columns => [{:name => 'State'}, {:units => Dataset::Number::Count}])
     calc.target(table)
     # table.stubs(:dimensions).returns([dim = mock])
     # dim.stubs(:name).returns('State')

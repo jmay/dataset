@@ -82,9 +82,9 @@ module Dataset
     end
 
     def resultspec
-      Table.new([
-        { :chron => @target.chron },
-        { :number => Number::Percentage,
+      Table.new(:columns => [
+        { :chron => @target.chron_str },
+        { :number => 'Percentage',
           :label => "Monthly change in #{@target.measure_column.label}" }
         ])
     end

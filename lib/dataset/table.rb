@@ -1,3 +1,5 @@
+# TODO: consider renaming Table to TableSpec or Tablespec
+
 module Dataset
   class Table
     attr_reader :nrows  # table-global metadata
@@ -79,6 +81,10 @@ module Dataset
       Chron.const_get(chron_columns.first[:chron]) rescue nil
     end
 
+    def chron_str
+      chron_columns.first[:chron]
+    end
+
     def dimension_columns
       columns.find_all {|col| !col[:chron] && !col[:number]}
     end
@@ -109,6 +115,10 @@ module Dataset
 
     def measure
       Number.const_get(measures.first)
+    end
+
+    def measure_str
+      measures.first
     end
   end
 
