@@ -341,6 +341,14 @@ module Dataset
             century = yyyy.to_i > 30 ? "19" : "20"
             yyyy = "#{century}#{yyyy}"
           end
+        when /^(\d{2,4})\b[-.\/ ](\w+)$/
+          # 2006-Dec, 06.dec, 2006/dec
+          yyyy, mon = $1, $2
+          mm = Date::Format::ABBR_MONTHS[mon.downcase] || Date::Format::MONTHS[mon.downcase] unless mon.nil?
+          if yyyy && yyyy.length == 2
+            century = yyyy.to_i > 30 ? "19" : "20"
+            yyyy = "#{century}#{yyyy}"
+          end
         end
         # yyyy, mm = input.scan(/^(\d\d\d\d)[-\/\.]?(\d\d)([-\/\.]?(01))?$/)[0]
         # if yyyy.nil? or mm.nil? then

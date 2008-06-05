@@ -43,6 +43,8 @@ class TestChron < Test::Unit::TestCase
 
     assert_equal("07/2007", Dataset::Chron::YYYYMM.new("July 2007").to_s)
     assert_equal("07/2007", Dataset::Chron::YYYYMM.new("July 2007 estimate").to_s)
+
+    assert_equal("07/2007", Dataset::Chron::YYYYMM.new("2007-Jul").to_s)
   end
 
   def test_other_months
