@@ -109,6 +109,18 @@ describe "runlog vs user column labeling" do
   end
 end
 
+describe "column range metadata" do
+  it "should reformat min & max chron ranges" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM', :min => 23364, :max => 24096}, {:label => 'State'}, {:number => 'Quantity', :min => 123, :max => 987.6}])
+    table.chron_column.min.to_s.should == '01/1947'
+    table.chron_column.max.to_s.should == '01/2008'
+    table.measure_columns.first.min.to_s.should == "123.00"
+    table.measure_columns.first.max.to_s.should == "987.60"
+    table.columns[1].min.should be_nil
+    table.columns[1].max.should be_nil
+  end
+end
+
 # given a Table, we can:
 # * ask what operations is supports (so we can present options to the user)
 # * ask if supports a particular operation (verify against users trying to break the system)

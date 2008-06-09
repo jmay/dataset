@@ -1,5 +1,6 @@
 # TODO: consider renaming Table to TableSpec or Tablespec
 # TODO: user-provided vs system-automated metadata, esp. user-provided column labels
+# TODO: constraints (look at TableDescriptor)
 module Dataset
   class Table
     attr_reader :nrows  # table-global metadata
@@ -147,6 +148,14 @@ module Dataset
       else
         value
       end
+    end
+
+    def min
+      @metadata[:min] && interpret(@metadata[:min])
+    end
+
+    def max
+      @metadata[:max] && interpret(@metadata[:max])
     end
   end
 end
