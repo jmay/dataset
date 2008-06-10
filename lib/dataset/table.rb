@@ -69,7 +69,7 @@ module Dataset
     end
 
     def chron
-      Chron.const_get(chron_columns.first[:chron]) rescue nil
+      chron_column.chron rescue nil
     end
 
     def chron_str
@@ -105,7 +105,7 @@ module Dataset
     end
 
     def measure
-      Number.const_get(measures.first)
+      measure_column.measure rescue nil
     end
 
     def measure_str
@@ -139,12 +139,28 @@ module Dataset
       @metadata[:label]
     end
 
+    def chron
+      Chron.const_get(@metadata[:chron])
+    end
+
+    def number
+      Number.const_get(@metadata[:number])
+    end
+
+    def measure
+      Measure.new(
+        :name => label,
+        :units => number,
+        :multiplier => @metadata[:multiplier]
+        )
+    end
+
     def interpret(value)
       if @metadata[:chron]
         # @metadata[:chron].new(:index => value)
-        Chron.const_get(@metadata[:chron]).new(:index => value)
+        chron.new(:index => value)
       elsif @metadata[:number]
-        Number.const_get(@metadata[:number]).new(value)
+        number.new(value)
       else
         value
       end

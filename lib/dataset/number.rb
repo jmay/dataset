@@ -8,6 +8,11 @@
 module Dataset
   module Number
     class Base
+      class << self
+        attr_accessor :label
+        def generic?; true; end
+      end
+
       def initialize(num, options = {})
         @value = num
         @options = options
@@ -29,6 +34,8 @@ module Dataset
 
     # a non-negative integer value
     class Count < Base
+      @label = 'Units'
+
       def initialize(num, options = {})
         # raise "Must be non-negative" if num < 0
         options[:format] = "%d"
@@ -42,6 +49,8 @@ module Dataset
 
     # a non-negative float value
     class Quantity < Base
+      @label = 'Unspecified Measure'
+
       def initialize(num, options = {})
         options[:format] ||= "%.2f" # default is two decimals
         super(num.is_a?(String) ? Quantity.convert(num) : num, options)
@@ -54,6 +63,9 @@ module Dataset
 
     # a non-negative percentage
     class Percentage < Base
+      @label = 'Percent'
+      def self.generic?; false; end
+
       def initialize(num, options = {})
         options[:format] ||= "%.0f%%" # default is zero decimals
         options[:multiplier] = 0.01

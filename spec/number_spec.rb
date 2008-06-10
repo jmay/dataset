@@ -3,6 +3,11 @@ require File.dirname(__FILE__) + '/spec_helper'
 require "dataset/number"
 
 describe "regular counts" do
+  it "should know its name" do
+    Dataset::Number::Count.label.should == 'Units'
+    Dataset::Number::Count.should be_generic
+  end
+
   it "should convert strings" do
     Dataset::Number::Count.new("27").value.should == 27
   end
@@ -24,6 +29,11 @@ describe "regular counts" do
 end
 
 describe "float quantities" do
+  it "should know its name" do
+    Dataset::Number::Quantity.label.should == 'Unspecified Measure'
+    Dataset::Number::Quantity.should be_generic
+  end
+
   it "should convert strings" do
     Dataset::Number::Quantity.new("4.3").value.should == 4.3
     Dataset::Number::Quantity.new("+14.3").value.should == 14.3
@@ -32,6 +42,11 @@ describe "float quantities" do
 end
 
 describe 'percentages' do
+  it "should know its name" do
+    Dataset::Number::Percentage.label.should == 'Percent'
+    Dataset::Number::Percentage.should_not be_generic
+  end
+
   it "should handle string conversions" do
     Dataset::Number::Percentage.new("4.3").value.should == 0.043
     Dataset::Number::Percentage.new("4.3%").value.should == 0.043

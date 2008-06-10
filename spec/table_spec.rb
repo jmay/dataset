@@ -43,7 +43,9 @@ describe "role extraction" do
     table.measure_columns.size == 1
     table.measures.any?.should be_true
     table.measure?.should be_true
-    table.measure.should == Dataset::Number::Dollars
+    table.measure_column.number.should == Dataset::Number::Dollars
+
+    table.measure.should == Dataset::Measure.new(:units => Dataset::Number::Dollars, :multiplier => nil)
     # table.measure_column.metadata[:number].should == Dataset::Number::Dollars
     # table.measure.multiplier.should == :ones
     # table.measure.units.should == Dataset::Units::Dollars
@@ -73,7 +75,7 @@ describe "table construction from pipeline runlog" do
 
     table.measure?.should be_true
     # table.measure_column[:colnum].should == 1
-    table.measure.should == Dataset::Number::Quantity
+    table.measure.should == Dataset::Measure.new(:units => Dataset::Number::Quantity)
   end
 
   it "should interpret data from NSF according to the metadata" do
