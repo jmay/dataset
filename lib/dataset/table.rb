@@ -3,7 +3,7 @@
 # TODO: constraints (look at TableDescriptor)
 module Dataset
   class Table
-    attr_reader :nrows, :constraints  # table-global metadata
+    attr_reader :nrows  # table-global metadata
     attr_reader :columns  # array containing per-column metadata
 
     def initialize(args = {})
@@ -48,6 +48,10 @@ module Dataset
         fields = line.chomp.split("\t")
         @columns.zip(fields).map {|col, v| col.data << col.interpret(v)}
       end
+    end
+
+    def constraints
+      @constraints ||= {}
     end
 
     # a table is NSF if:

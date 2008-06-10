@@ -148,6 +148,13 @@ describe "table with constraints" do
     table.constraints.delete('Category')
     table.constraints.should be_empty
   end
+
+  it "should have empty default constraints when loaded from YAML" do
+    table = YAML.load("--- !ruby/object:Dataset::Table \ncolumns: []\n\nnrows: \n")
+    table.constraints.should == {}
+    table.constraints['foo'] = 'bar'
+    table.constraints.should_not be_empty
+  end
 end
 
 # given a Table, we can:
