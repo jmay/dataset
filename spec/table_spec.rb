@@ -123,6 +123,33 @@ describe "column range metadata" do
   end
 end
 
+describe "table with constraints" do
+  it "should retain constraints independent of column info" do
+    table = Dataset::Table.new(:constraints => {'Category' => 'Groceries'})
+    table.constraints.size.should == 1
+  end
+
+  it "should be able to add constraints" do
+    table = Dataset::Table.new
+    table.constraints.size.should == 0
+    table.constraints['Department'] = 'Defense'
+    table.constraints.size.should == 1
+  end
+
+  it "should be able to modify constraints" do
+    table = Dataset::Table.new(:constraints => {'Category' => 'Groceries'})
+    table.constraints['Category'] = 'Food'
+    table.constraints.size.should == 1
+    table.constraints.values.should == ['Food']
+  end
+
+  it "should be able to delete constraints" do
+    table = Dataset::Table.new(:constraints => {'Category' => 'Groceries'})
+    table.constraints.delete('Category')
+    table.constraints.should be_empty
+  end
+end
+
 # given a Table, we can:
 # * ask what operations is supports (so we can present options to the user)
 # * ask if supports a particular operation (verify against users trying to break the system)

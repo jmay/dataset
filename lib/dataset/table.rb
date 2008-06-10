@@ -3,12 +3,13 @@
 # TODO: constraints (look at TableDescriptor)
 module Dataset
   class Table
-    attr_reader :nrows  # table-global metadata
+    attr_reader :nrows, :constraints  # table-global metadata
     attr_reader :columns  # array containing per-column metadata
 
     def initialize(args = {})
       @nrows = args[:nrows]
-      @columns = args[:columns].map_with_index {|coldata, colnum| TableColumn.new(:metadata => coldata, :colnum => colnum)}
+      @columns = (args[:columns] || []).map_with_index {|coldata, colnum| TableColumn.new(:metadata => coldata, :colnum => colnum)}
+      @constraints = args[:constraints] || {}
     end
 
     def self.from_runlog(runlog)
