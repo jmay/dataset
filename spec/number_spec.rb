@@ -4,6 +4,7 @@ require "dataset/number"
 
 describe "regular counts" do
   it "should know its name" do
+    Dataset::Number.find('Units').should == Dataset::Number::Count
     Dataset::Number::Count.label.should == 'Units'
     Dataset::Number::Count.should be_generic
   end
@@ -30,6 +31,7 @@ end
 
 describe "float quantities" do
   it "should know its name" do
+    Dataset::Number.find('Unspecified Measure').should == Dataset::Number::Quantity
     Dataset::Number::Quantity.label.should == 'Unspecified Measure'
     Dataset::Number::Quantity.should be_generic
   end
@@ -43,6 +45,7 @@ end
 
 describe 'percentages' do
   it "should know its name" do
+    Dataset::Number.find('Percent').should == Dataset::Number::Percentage
     Dataset::Number::Percentage.label.should == 'Percent'
     Dataset::Number::Percentage.should_not be_generic
   end

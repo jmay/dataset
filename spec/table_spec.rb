@@ -54,7 +54,7 @@ describe "role extraction" do
   it "should handle label attributes for columns" do
     table = Dataset::Table.new(:columns => [
       {:label => 'State'},
-      {:number => 'Count', :label => 'Population', :multiplier => 'thousands'}
+      {:number => 'Units', :label => 'Population', :multiplier => 'thousands'}
       ])
     table.nsf?.should be_true
   end
@@ -91,12 +91,13 @@ describe "table construction from pipeline runlog" do
     end
 
     # process entire file as batch
-    table.load(datafile)
-    table.columns[0].data.size.should == 530
-    table.columns[0].data.each {|v| v.should be_instance_of(Dataset::Chron::YYYYMM)}
-    table.columns[1].data.size.should == 530
-    table.columns[1].data.first.value.should == 7.79
-    table.columns[1].data.each {|v| v.should be_instance_of(Dataset::Number::Quantity)}
+    rows = table.read(datafile)
+    rows.size.should == 530
+    rows.first[1].value == 7.79
+    rows.each do |row|
+      row[0].should be_instance_of(Dataset::Chron::YYYYMM)
+      row[1].should be_instance_of(Dataset::Number::Quantity)
+    end
   end
 end
 
@@ -113,7 +114,7 @@ end
 
 describe "column range metadata" do
   it "should reformat min & max chron ranges" do
-    table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM', :min => 23364, :max => 24096}, {:label => 'State'}, {:number => 'Quantity', :min => 123, :max => 987.6}])
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM', :min => 23364, :max => 24096}, {:label => 'State'}, {:number => 'Unspecified Measure', :min => 123, :max => 987.6}])
     table.chron_column.min.to_s.should == '01/1947'
     table.chron_column.max.to_s.should == '01/2008'
     table.measure_columns.first.min.to_s.should == "123.00"
@@ -157,6 +158,84 @@ describe "table with constraints" do
   end
 end
 
+describe "table metadata updates" do
+  it "should handle measure updates" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units', :label => 'Widgets'}])
+    table.measure.name.should == 'Widgets'
+    table.measure.units.should == Dataset::Number::Count
+
+    table.measure = Dataset::Measure.new(:name => 'Gadgets', :multiplier => :thousand, :units => Dataset::Number::Quantity)
+    table.columns[1].name.should == 'Gadgets'
+    table.columns[1].label.should == 'Widgets'
+    table.columns[1].metadata[:multiplier].should == :thousand
+    table.columns[1].units.label.should == 'Unspecified Measure'
+
+    table.measure = {:name => 'Doodads', :number => 'Units'}
+    table.columns[1].name.should == 'Doodads'
+    table.columns[1].number.label.should == 'Units'
+    table.measure.name.should == 'Doodads'
+
+    table.measure = {'name' => 'Thingies', 'units' => 'Dollars'}
+    table.measure_column.name.should == 'Thingies'
+    table.measure_column.units.should == Dataset::Number::Dollars
+  end
+
+  it "should not allow measure-setting when there's no singular number column" do
+    table = Dataset::Table.new(:columns => [{:label => 'Name'}, {:label => 'Abbrev'}])
+    table.measure.should be_nil
+    lambda {
+      table.measure = Dataset::Measure.new(:name => 'Gadgets', :multiplier => :thousand, :units => Dataset::Number::Quantity)
+    }.should raise_error
+  end
+
+  it "should support override of column auto-label by user-provided name" do
+    table = Dataset::Table.new(:columns => [{:label => 'Name'}, {:label => 'Abbrev'}])
+    table.columns[1].name.should == 'Abbrev'
+    table.columns[1].metadata[:name] = 'Abbreviation'
+    table.columns[1].name.should == 'Abbreviation'
+    table.columns[1].label.should == 'Abbrev'
+  end
+
+  it "should support override of column auto-number by user-provided units" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Unspecified Measure'}])
+    table.measure_column.units.should == Dataset::Number::Quantity
+    table.measure = {'units' => 'Dollars'}
+    table.measure_column.units.should == Dataset::Number::Dollars
+  end
+end
+
+describe "row processing" do
+  before(:all) do
+    runlog = YAML.load_file(File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/runlog')
+    @datafile = File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/output'
+    @table = Dataset::Table.from_runlog(runlog)
+  end
+  
+  it "should support row count limit on file processing" do
+    rows = []
+    @table.read(@datafile, :limit => 20) do |row|
+      rows << row
+    end
+    rows.size.should == 20
+  end
+
+  it "should support starting line offset on file processing" do
+    rows = []
+    @table.read(@datafile, :offset => 100) do |row|
+      rows << row
+    end
+    rows.size.should == 430
+  end
+
+  it "should support limit & offset on file processing" do
+    rows = []
+    @table.read(@datafile, :offset => 250, :limit => 40) do |row|
+      rows << row
+    end
+    rows.size.should == 40
+    rows.first[0].to_s.should == "11/1984"
+  end
+end
 # given a Table, we can:
 # * ask what operations is supports (so we can present options to the user)
 # * ask if supports a particular operation (verify against users trying to break the system)

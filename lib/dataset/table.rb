@@ -1,6 +1,8 @@
 # TODO: consider renaming Table to TableSpec or Tablespec
 # TODO: user-provided vs system-automated metadata, esp. user-provided column labels
-# TODO: constraints (look at TableDescriptor)
+
+require "facets/hash"
+
 module Dataset
   class Table
     attr_reader :nrows  # table-global metadata
@@ -34,20 +36,25 @@ module Dataset
       end
     end
 
-    # process file as stream
-    def read(datafile, &block)
-      File.open(datafile).each_line do |line|
-        fields = line.chomp.split("\t")
-        yield(@columns.zip(fields).map {|col, v| col.interpret(v)})
-      end
-    end
+    # process file as stream (if block provided) or batch
+    # yield each row as an array of converted types: Chron, Number or the untouched string
+    def read(datafile, args = {}, &block)
+      limit = args[:limit] || nil
+      offset = args[:offset] || 0
+      rows = []
 
-    # process file as a batch
-    def load(datafile)
-      File.open(datafile).each_line do |line|
+      File.open(datafile).each_with_index do |line, i|
+        break if limit && i >= offset+limit
+        next if i < offset
         fields = line.chomp.split("\t")
-        @columns.zip(fields).map {|col, v| col.data << col.interpret(v)}
+        row = @columns.zip(fields).map {|col, v| col.interpret(v)}
+        if block
+          yield row
+        else
+          rows << row
+        end
       end
+      rows
     end
 
     def constraints
@@ -116,6 +123,18 @@ module Dataset
     def measure_str
       measures.first
     end
+
+    def measure=(measure)
+      if measure.respond_to?(:name)
+        measure_column.metadata.merge!(:name => measure.name, :multiplier => measure.multiplier, :units => measure.units.label)
+      else
+        measure_column.metadata.merge!({
+          :name => measure[:name] || measure['name'],
+          :units => measure[:number] || measure[:units] || measure['units'],
+          :multiplier => measure[:multiplier] || measure['multiplier']
+        })
+      end
+    end
   end
 
   class TableColumn
@@ -140,8 +159,13 @@ module Dataset
       @metadata[key] = value
     end
 
+    # TODO: user vs system labeling, separate 'name' and 'label' internal metadata attributes?
     def label
       @metadata[:label]
+    end
+
+    def name
+      @metadata[:name] || @metadata[:label]
     end
 
     def chron
@@ -149,13 +173,17 @@ module Dataset
     end
 
     def number
-      Number.const_get(@metadata[:number])
+      Number.find(@metadata[:number])
+    end
+
+    def units
+      Number.find(@metadata[:units] || @metadata[:number])
     end
 
     def measure
       Measure.new(
-        :name => label,
-        :units => number,
+        :name => name,
+        :units => units,
         :multiplier => @metadata[:multiplier]
         )
     end

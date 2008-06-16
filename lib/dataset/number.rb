@@ -7,6 +7,15 @@
 #
 module Dataset
   module Number
+    def self.all
+      self.constants.map {|c| self.const_get(c).label}.compact.sort
+    end
+
+    def self.find(label)
+      classname = self.constants.find {|c| self.const_get(c).label == label}
+      classname ? self.const_get(classname) : nil
+    end
+
     class Base
       class << self
         attr_accessor :label
@@ -78,17 +87,17 @@ module Dataset
     end
 
     # a positive integer, but these can only be used for ordering, not math
-    class Rank
+    class Rank < Base
       
     end
 
     # a positive float; might restrict some math operations
-    class Index
+    class Index < Base
       
     end
 
     # an integer; always show the sign when displaying
-    class Difference
+    class Difference < Base
       def initialize(num, options = {})
         options[:format] = "%+d"
         super(num, options)
@@ -96,7 +105,7 @@ module Dataset
     end
 
     # a percentage; always show sign when displaying
-    class Delta
+    class Delta < Base
       def initialize(num, options = {})
         options[:format] ||= "%+.1f%%" # default is one decimal place
         options[:multiplier] = 0.01
@@ -106,6 +115,8 @@ module Dataset
 
     # float, format output with leading '$'; for negatives, minus sign before the '$'
     class Dollars < Base
+      @label = 'Dollars'
+
       def initialize(num, options = {})
         options[:format] = "%.2f"
         super(num, options)
@@ -113,23 +124,23 @@ module Dataset
     end
 
     # a positive float, measuring time in seconds?
-    class Duration
+    class Duration < Base
       
     end
 
 
-    # COUNT_FORMAT = "%d"
-    # FLOAT_FORMAT = "%.2f"
-    # PERCENT_FORMAT = "%.2f%%"
-    # DIFF_FORMAT
-
-    class Formatter
-      def initialize(format)
-        @fmt = format
-      end
-      def format(num)
-        sprintf(@fmt, @value).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
-      end
-    end
+    # # COUNT_FORMAT = "%d"
+    # # FLOAT_FORMAT = "%.2f"
+    # # PERCENT_FORMAT = "%.2f%%"
+    # # DIFF_FORMAT
+    # 
+    # class Formatter
+    #   def initialize(format)
+    #     @fmt = format
+    #   end
+    #   def format(num)
+    #     sprintf(@fmt, @value).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
+    #   end
+    # end
   end
 end
