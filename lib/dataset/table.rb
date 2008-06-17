@@ -148,7 +148,6 @@ module Dataset
     def initialize(args)
       @metadata = args[:metadata]
       @colnum = args[:colnum]
-      @data = []
     end
 
     def merge(col2)
