@@ -27,6 +27,11 @@ describe "regular counts" do
     Dataset::Number::Count.new("12,123").value.should == 12123
     Dataset::Number::Count.new("-1,234,123").value.should == -1234123
   end
+
+  it "should display with commas" do
+    Dataset::Number::Count.new("12345").to_s.should == "12,345"
+    Dataset::Number::Count.new("-1234567").to_s.should == "-1,234,567"
+  end
 end
 
 describe "float quantities" do
@@ -40,6 +45,21 @@ describe "float quantities" do
     Dataset::Number::Quantity.new("4.3").value.should == 4.3
     Dataset::Number::Quantity.new("+14.3").value.should == 14.3
     Dataset::Number::Quantity.new("-91").value.should == -91
+  end
+  
+  it "should display with consistent number of decimals" do
+    Dataset::Number::Quantity.new("4.3").to_s.should == "4.30"
+    Dataset::Number::Quantity.new("+14.3").value.should == 14.3
+    Dataset::Number::Quantity.new("-91").value.should == -91
+  end
+
+  it "should put commas in output" do
+    Dataset::Number::Quantity.new("12345.6789").to_s.should == "12,345.68"
+  end
+
+  it "should not put commas after the decimal" do
+    pending "because commaize isn't working properly"
+    Dataset::Number::Quantity.new("12345.6789", :format => '%.4f').to_s.should == "12,345.6789"
   end
 end
 
@@ -67,5 +87,25 @@ describe 'percentages' do
 
   it "should support formatting control" do
     Dataset::Number::Percentage.new(12.8, :format => "%0.2f%%").to_s.should == "12.80%"
+  end
+end
+
+describe "dollars" do
+  it "should know its name" do
+    Dataset::Number.find('Dollars').should == Dataset::Number::Dollars
+    Dataset::Number::Dollars.label.should == 'Dollars'
+    Dataset::Number::Dollars.should be_generic
+  end
+
+  it "should convert strings" do
+    Dataset::Number::Dollars.new("4.3").value.should == 4.3
+    Dataset::Number::Dollars.new("+14.3").value.should == 14.3
+    Dataset::Number::Dollars.new("-91").value.should == -91
+  end
+  
+  it "should display with two decimals and dollar sign" do
+    Dataset::Number::Dollars.new("4.3").to_s.should == "$4.30"
+    Dataset::Number::Dollars.new("+1234.3").to_s.should == "$1,234.30"
+    Dataset::Number::Dollars.new("-91.6").to_s.should == "-$91.60"
   end
 end

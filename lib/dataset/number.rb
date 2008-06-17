@@ -19,6 +19,7 @@ module Dataset
     class Base
       class << self
         attr_accessor :label
+        # TODO: I cloned this from unit.rb, what's it for?  for measures like Percent that don't get multipliers?
         def generic?; true; end
       end
 
@@ -93,7 +94,7 @@ module Dataset
 
     # a positive float; might restrict some math operations
     class Index < Base
-      
+      @label = 'Index'
     end
 
     # an integer; always show the sign when displaying
@@ -114,13 +115,24 @@ module Dataset
     end
 
     # float, format output with leading '$'; for negatives, minus sign before the '$'
-    class Dollars < Base
+    class Dollars < Quantity
       @label = 'Dollars'
 
       def initialize(num, options = {})
         options[:format] = "%.2f"
         super(num, options)
       end
+
+      def to_s
+        sign = (value < 0.0) ? "-" : ""
+        fmt = "#{sign}$%.2f"
+        sprintf(fmt, value.abs).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
+      end
+    end
+
+    # also a non-negative integer
+    class People < Count
+      @label = 'People'
     end
 
     # a positive float, measuring time in seconds?
