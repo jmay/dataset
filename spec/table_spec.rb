@@ -108,7 +108,7 @@ describe "runlog vs user column labeling" do
     table.nsf?.should be_false
     table.nrows.should == 530
     table.columns.size.should == 4
-    table.columns.each {|col| col.metadata.include?(:headings)}
+    table.columns.each {|col| col.metadata.should include(:heading)}
   end
 end
 
@@ -210,7 +210,7 @@ describe "row processing" do
     @datafile = File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/output'
     @table = Dataset::Table.from_runlog(runlog)
   end
-  
+
   it "should support row count limit on file processing" do
     rows = []
     @table.read(@datafile, :limit => 20) do |row|
@@ -236,6 +236,24 @@ describe "row processing" do
     rows.first[0].to_s.should == "11/1984"
   end
 end
+
+describe "column labels" do
+  before(:all) do
+    runlog = YAML.load_file(File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/runlog')
+    @datafile = File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/output'
+    @table = Dataset::Table.from_runlog(runlog)
+  end
+
+  it "should pull default labels from the roles determined from the runlog" do
+    @table.column_labels.should == ["Year & Month", "Unspecified Measure"]
+  end
+
+  it "should use user labels if provided" do
+    @table.measure_column.metadata[:label] = "Widgets"
+    @table.column_labels.should == ["Year & Month", "Widgets"]
+  end
+end
+
 # given a Table, we can:
 # * ask what operations is supports (so we can present options to the user)
 # * ask if supports a particular operation (verify against users trying to break the system)

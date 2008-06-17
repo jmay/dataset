@@ -135,6 +135,10 @@ module Dataset
         })
       end
     end
+
+    def column_labels
+      columns.map(&:name_or_default)
+    end
   end
 
   class TableColumn
@@ -148,7 +152,7 @@ module Dataset
     end
 
     def merge(col2)
-      metadata.merge!(col2.metadata)
+      @metadata.merge!(col2.metadata)
     end
 
     def [](key)
@@ -165,11 +169,23 @@ module Dataset
     end
 
     def name
-      @metadata[:name] || @metadata[:label]
+      @metadata[:name] || @metadata[:label] || @metadata[:heading]
+    end
+
+    def name_or_default
+      name || (chron? && chron.label) || (number? && number.label)
+    end
+
+    def chron?
+      !metadata[:chron].nil?
     end
 
     def chron
       Chron.const_get(@metadata[:chron])
+    end
+
+    def number?
+      !metadata[:number].nil?
     end
 
     def number
