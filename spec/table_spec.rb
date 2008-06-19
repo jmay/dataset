@@ -235,6 +235,31 @@ describe "row processing" do
     rows.size.should == 40
     rows.first[0].to_s.should == "11/1984"
   end
+
+  it "should load into memory if requested, for column processing" do
+    @table.read(@datafile).size.should == 530
+    @table.chrondata.each {|v| v.should  be_instance_of(Dataset::Chron::YYYYMM)}
+    @table.measuredata.each {|v| v.should  be_instance_of(Dataset::Number::Quantity)}
+  end
+
+  it "should support tmin-only on file processing" do
+    @table.read(@datafile, :tmin => Dataset::Chron::YYYYMM.new("10/1995")) do |row|
+      (row.first >= Dataset::Chron::YYYYMM.new("10/1995")).should be_true
+    end
+  end
+
+  it "should support tmax-only on file processing" do
+    @table.read(@datafile, :tmax => Dataset::Chron::YYYYMM.new("4/2001")) do |row|
+      (row.first <= Dataset::Chron::YYYYMM.new("4/2001")).should be_true
+    end
+  end
+
+  it "should support both tmin & tmax on file processing" do
+    @table.read(@datafile, :tmin => Dataset::Chron::YYYYMM.new("6/1998"), :tmax => Dataset::Chron::YYYYMM.new("3/2003")) do |row|
+      (row.first >= Dataset::Chron::YYYYMM.new("6/1998")).should be_true
+      (row.first <= Dataset::Chron::YYYYMM.new("3/2003")).should be_true
+    end
+  end
 end
 
 describe "column labels" do

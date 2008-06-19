@@ -7,6 +7,7 @@ module Dataset
   class Table
     attr_reader :nrows  # table-global metadata
     attr_reader :columns  # array containing per-column metadata
+    attr_reader :rows # if #read has been called, this will contain an array of data rows
 
     def initialize(args = {})
       @nrows = args[:nrows]
@@ -39,9 +40,38 @@ module Dataset
     # process file as stream (if block provided) or batch
     # yield each row as an array of converted types: Chron, Number or the untouched string
     def read(datafile, args = {}, &block)
+      if args[:tmin] || args[:tmax]
+        read_with_chron_range(datafile, args, &block)
+      else
+        read_with_limit_and_offset(datafile, args, &block)
+      end
+    end
+
+    def read_with_chron_range(datafile, args, &block)
+      raise "No chron column in this table" unless chron?
+      raise "Chron mismatch - expected #{chron}" if (args[:tmin] && args[:tmin].class != chron) || (args[:tmax] && args[:tmax].class != chron)
+
+      @rows = []
+      File.open(datafile).each do |line|
+        fields = line.chomp.split("\t")
+        row = @columns.zip(fields).map {|col, v| col.interpret(v)}
+
+        next if args[:tmin] && row[chron_column.colnum] < args[:tmin]
+        next if args[:tmax] && row[chron_column.colnum] > args[:tmax]
+
+        if block
+          yield row
+        else
+          @rows << row
+        end
+      end
+      @rows
+    end
+
+    def read_with_limit_and_offset(datafile, args, &block)
       limit = args[:limit] || nil
       offset = args[:offset] || 0
-      rows = []
+      @rows = []
 
       File.open(datafile).each_with_index do |line, i|
         break if limit && i >= offset+limit
@@ -51,10 +81,10 @@ module Dataset
         if block
           yield row
         else
-          rows << row
+          @rows << row
         end
       end
-      rows
+      @rows
     end
 
     def constraints
@@ -138,6 +168,14 @@ module Dataset
 
     def column_labels
       columns.map(&:name_or_default)
+    end
+
+    def chrondata
+      @rows.map {|row| row[chron_column.colnum]}
+    end
+
+    def measuredata
+      @rows.map {|row| row[measure_column.colnum]}
     end
   end
 
