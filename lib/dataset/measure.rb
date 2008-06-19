@@ -96,16 +96,19 @@ module Dataset
       case multiplier
       when nil
         # no multiplier provided, should only be for a unit where multiplier is irrelevant, e.g. Percentage
-        v = v.is_a?(Units::Base) ? v : @units.new(value)
-        v.format(hints)
+        # v = v.is_a?(Units::Base) ? v : @units.new(value)
+        value = @units.new(value) if value.is_a?(Numeric)
+        value.format(hints)
       when :ones
         hints[:decimals] ||= precision
-        v = v.is_a?(Units::Base) ? v : @units.new(value)
-        v.format(hints)
+        # v = v.is_a?(Units::Base) ? v : @units.new(value)
+        value = @units.new(value) if value.is_a?(Numeric)
+        value.format(hints)
       else
         hints[:decimals] ||= precision || 0
         hints[:sigil] = "" unless hints[:sigil]
-        @units.new(value).format(hints)
+        value = @units.new(value) if value.is_a?(Numeric)
+        value.format(hints)
       end
     end
 

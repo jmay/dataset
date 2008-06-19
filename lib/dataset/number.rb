@@ -40,6 +40,12 @@ module Dataset
       def to_s
         sprintf(@options[:format], @value).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
       end
+
+      # TODO: this is for backwards compability with Unit, which has a format-with-hints method;
+      # figure out if that functionality is necessary, and simplify this
+      def format(args = {})
+        to_s
+      end
     end
 
     # a non-negative integer value
