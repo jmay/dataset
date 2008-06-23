@@ -255,7 +255,7 @@ module Dataset
       end
       def init_hash(hash)
         if index = hash[:index]
-          @internal = index.to_i
+          @internal = index
           return
         end
 
@@ -369,7 +369,7 @@ module Dataset
       end
 
       def init_hash(hash)
-        if hash.include?(:index) && index = hash[:index].to_i
+        if hash.include?(:index) && index = hash[:index]
           @internal = { :year => (index / 12), :month => (index % 12 + 1) }
           return
         end
@@ -596,7 +596,7 @@ module Dataset
 
       def init_hash(hash)
         if index = hash[:index]
-          @internal = { :year => (index.to_i / 4), :quarter => (index.to_i % 4 + 1) }
+          @internal = { :year => (index / 4), :quarter => (index % 4 + 1) }
           return
         end
 

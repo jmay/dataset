@@ -243,8 +243,7 @@ module Dataset
 
     def interpret(value, params = {})
       if @metadata[:chron]
-        # @metadata[:chron].new(:index => value)
-        chron.new(:index => value)
+        chron.new(:index => value.to_i)
       elsif @metadata[:number] && !params[:skip_number_formatting]
         number.new(value)
       else
