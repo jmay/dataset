@@ -260,6 +260,14 @@ describe "row processing" do
       (row.first <= Dataset::Chron::YYYYMM.new("3/2003")).should be_true
     end
   end
+
+  it "should allow measure interpretation to be turned off" do
+    rows = @table.read(@datafile)
+    rows.each {|row| row.last.should be_instance_of(Dataset::Number::Quantity)}
+
+    rows = @table.read(@datafile, :skip_number_formatting => true)
+    rows.each {|row| row.last.should be_kind_of(String)}
+  end
 end
 
 describe "column labels" do

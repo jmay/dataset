@@ -54,7 +54,7 @@ module Dataset
       @rows = []
       File.open(datafile).each do |line|
         fields = line.chomp.split("\t")
-        row = @columns.zip(fields).map {|col, v| col.interpret(v)}
+        row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
 
         next if args[:tmin] && row[chron_column.colnum] < args[:tmin]
         next if args[:tmax] && row[chron_column.colnum] > args[:tmax]
@@ -77,7 +77,7 @@ module Dataset
         break if limit && i >= offset+limit
         next if i < offset
         fields = line.chomp.split("\t")
-        row = @columns.zip(fields).map {|col, v| col.interpret(v)}
+        row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
         if block
           yield row
         else
@@ -241,11 +241,11 @@ module Dataset
         )
     end
 
-    def interpret(value)
+    def interpret(value, params = {})
       if @metadata[:chron]
         # @metadata[:chron].new(:index => value)
         chron.new(:index => value)
-      elsif @metadata[:number]
+      elsif @metadata[:number] && !params[:skip_number_formatting]
         number.new(value)
       else
         value
