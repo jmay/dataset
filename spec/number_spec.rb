@@ -57,8 +57,7 @@ describe "float quantities" do
     Dataset::Number::Quantity.new("12345.6789").to_s.should == "12,345.68"
   end
 
-  it "should not put commas after the decimal" do
-    pending "because commaize isn't working properly"
+  it "should support format override, not put commas after the decimal" do
     Dataset::Number::Quantity.new("12345.6789", :format => '%.4f').to_s.should == "12,345.6789"
   end
 end

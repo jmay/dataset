@@ -38,7 +38,7 @@ module Dataset
       end
 
       def to_s
-        sprintf(@options[:format], @value).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
+        sprintf(@options[:format], @value).commafy
       end
 
       # TODO: this is for backwards compability with Unit, which has a format-with-hints method;
@@ -160,5 +160,11 @@ module Dataset
     #     sprintf(@fmt, @value).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
     #   end
     # end
+  end
+end
+
+class String
+  def commafy
+    self.reverse.gsub(/(\d\d\d)(?=\d)(?!\d*\.)/, '\1,').reverse
   end
 end
