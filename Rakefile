@@ -15,7 +15,7 @@ end
 
 spec = Gem::Specification.new do |s| 
   s.name = "dataset"
-  s.version = "0.6"
+  s.version = "0.7"
   s.author = "Jason May"
   s.email = "jmay@numbrary.com"
   s.homepage = "http://numbrary.com/"
