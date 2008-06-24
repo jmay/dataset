@@ -204,7 +204,7 @@ describe "table metadata updates" do
   end
 end
 
-describe "row processing" do
+describe "row processing with full tablespec" do
   before(:all) do
     runlog = YAML.load_file(File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/runlog')
     @datafile = File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/output'
@@ -267,6 +267,20 @@ describe "row processing" do
 
     rows = @table.read(@datafile, :skip_number_formatting => true)
     rows.each {|row| row.last.should be_kind_of(String)}
+  end
+end
+
+# for a tablespec that has no column metadata, #read must still work
+describe "row processing with incomplete tablespec" do
+  before(:all) do
+    @datafile = File.dirname(__FILE__) + '/../../pipeline/test/bea-extraction/output'
+    @table = Dataset::Table.new()
+  end
+
+  it "should output all the columns" do
+    rows = @table.read(@datafile)
+    rows.size.should == 25
+    rows.each {|row| [2,247].should include(row.size)}
   end
 end
 

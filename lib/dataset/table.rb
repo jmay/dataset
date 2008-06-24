@@ -77,7 +77,11 @@ module Dataset
         break if limit && i >= offset+limit
         next if i < offset
         fields = line.chomp.split("\t")
-        row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
+        if @columns.any?
+          row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
+        else
+          row = fields
+        end
         if block
           yield row
         else
