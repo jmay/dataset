@@ -66,7 +66,7 @@ describe "floats with custom formats" do
   it "should be able to create on demand" do
     n = Dataset::Number.find('%.4f')
     n.new('12.34567').to_s.should == '12.3457'
-    n.label.should == 'Formatted as %.4f'
+    n.label.should == '%.4f'
   end
 
   it "should not create duplicate dynamic number classes" do
