@@ -191,6 +191,41 @@ module Dataset
     end
   end
 
+  class Column < Calculation
+    label 'column'
+    terminal
+
+    attr_reader :column
+
+    def self.find(descriptor)
+      if descriptor == ""
+        self
+      else
+        self.new(*descriptor.split('-'))
+      end
+    end
+
+    def initialize(colnum = nil)
+      @column = colnum.to_i
+    end
+
+    def ready?
+      @target && @target.measure? && @target.columns[@column] && @target.columns[column].number?
+    end
+
+    def recipe
+      if ready?
+        columns = [@target.chron_columns, @target.dimension_columns].flatten.map(&:colnum) + [column]
+        [{
+          :command => 'columns.rb',
+          :args => {
+            :columns => columns.join(",")
+          },
+        }]
+      end
+    end
+  end
+
   # 
   #   module Changes
   #     module Percent

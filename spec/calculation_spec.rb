@@ -174,6 +174,50 @@ describe "extract calculation" do
   end
 end
 
+describe "measure-column extraction calculation" do
+  it "should require column number to extract" do
+    Dataset::Calculation.find("column").should_not be_terminal
+    Dataset::Calculation.find("column-2").should be_terminal
+  end
+
+  it "should require a target" do
+    calc = Dataset::Calculation.find("column-2")
+    calc.should_not be_ready
+  end
+
+  it "should barf when target has no measure columns" do
+    calc = Dataset::Calculation.find("column-1")
+
+    calc.target(table = Dataset::Table.new())
+    calc.should_not be_ready
+
+    calc.target(table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:label => 'indeterminate'}]))
+    calc.should_not be_ready
+
+    calc.target(table = Dataset::Table.new(:columns => [{:name => 'Department'}, {:name => 'Manager'}]))
+    calc.should_not be_ready
+  end
+
+  it "should barf when target has no measure in the specified column" do
+    calc0 = Dataset::Calculation.find("column-0")
+    calc2 = Dataset::Calculation.find("column-2")
+
+    table = Dataset::Table.new(:columns => [{:chron => Dataset::Chron::YYYY}, {:number => Dataset::Number::Count}])
+    calc0.target(table)
+    calc0.should_not be_ready
+    calc2.target(table)
+    calc2.should_not be_ready
+  end
+
+  it "should pass when target has measure in the specified column" do
+    calc = Dataset::Calculation.find("column-1")
+
+    calc.target(table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Unspecified Measure'}]))
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'columns.rb', :args => { :columns => "0,1" }}]
+  end
+end
 
 # describe 'Calculations' do
 #   it "should round-trip descriptors" do
