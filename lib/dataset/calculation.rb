@@ -217,7 +217,7 @@ module Dataset
       if ready?
         columns = [@target.chron_columns, @target.dimension_columns].flatten.map(&:colnum) + [column]
         [{
-          :command => 'columns.rb',
+          :command => 'columns.pl',
           :args => {
             :columns => columns.join(",")
           },

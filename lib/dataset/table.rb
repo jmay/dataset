@@ -16,13 +16,17 @@ module Dataset
     end
 
     def self.from_runlog(runlog)
+      return nil if runlog.nil?
+
       stagedata = runlog['stagelogs']
-      nrows = stagedata.map{|stage| stage[:nrows]}.compact.last
+      return nil if stagedata.nil?
+
+      nrows = stagedata.map{|stage| stage[:nrows]}.compact.last.to_i
 
       columndata = stagedata.map{|v| v[:columns] || []}
       ncols = columndata.map{|cols| cols.size}.max
       merged_coldata = []
-      if ncols > 0
+      if ncols && ncols > 0
         columndata.each {|col| col[ncols-1] ||= {}}
         merged_coldata = columndata.transpose.map {|attrs| attrs.inject({}) {|memo, d| memo.merge(d || {})}}
       end

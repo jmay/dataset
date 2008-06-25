@@ -215,7 +215,7 @@ describe "measure-column extraction calculation" do
     calc.target(table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Unspecified Measure'}]))
     calc.should be_ready
 
-    calc.recipe.should == [{:command => 'columns.rb', :args => { :columns => "0,1" }}]
+    calc.recipe.should == [{:command => 'columns.pl', :args => { :columns => "0,1" }}]
   end
 end
 

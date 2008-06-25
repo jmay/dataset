@@ -61,6 +61,17 @@ describe "role extraction" do
 end
 
 describe "table construction from pipeline runlog" do
+  it "should spit out nil for garbage in" do
+    Dataset::Table.from_runlog(nil).should be_nil
+    Dataset::Table.from_runlog({}).should be_nil
+    Dataset::Table.from_runlog({ 'stagelogs' => nil }).should be_nil
+
+    # pipeline stages, did run, but with no output, so give an empty tablespec
+    spec = Dataset::Table.from_runlog({ 'stagelogs' => [] })
+    spec.nrows.should == 0
+    spec.columns.should be_empty
+  end
+
   it "should find all the column metadata" do
     runlog = YAML.load_file(File.dirname(__FILE__) + '/../../pipeline/test/bls-parse/runlog')
     table = Dataset::Table.from_runlog(runlog)
