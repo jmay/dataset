@@ -62,6 +62,20 @@ describe "float quantities" do
   end
 end
 
+describe "floats with custom formats" do
+  it "should be able to create on demand" do
+    n = Dataset::Number.find('%.4f')
+    n.new('12.34567').to_s.should == '12.3457'
+    n.label.should == 'Formatted as %.4f'
+  end
+
+  it "should not create duplicate dynamic number classes" do
+    n1 = Dataset::Number.find('%.4f')
+    n2 = Dataset::Number.find('%.4f')
+    n1.should == n2
+  end
+end
+
 describe 'percentages' do
   it "should know its name" do
     Dataset::Number.find('Percent').should == Dataset::Number::Percentage

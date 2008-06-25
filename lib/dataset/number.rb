@@ -7,18 +7,31 @@
 #
 module Dataset
   module Number
+    KLASSES = {}
+    
     def self.all
       self.constants.map {|c| self.const_get(c).label}.compact.sort
     end
 
     def self.find(label)
-      classname = self.constants.find {|c| self.const_get(c).label == label}
-      classname ? self.const_get(classname) : nil
+      if label =~ /^%/
+        klass = KLASSES[label]
+        return klass if klass
+
+        klass = Class.new(Quantity)
+        klass.instance_variable_set('@format', label)
+        klass.instance_variable_set('@label', label)
+        KLASSES[label] = klass
+      else
+        # look up 
+        classname = self.constants.find {|c| self.const_get(c).respond_to?(:label) && self.const_get(c).label == label}
+        classname ? self.const_get(classname) : nil
+      end
     end
 
     class Base
       class << self
-        attr_accessor :label
+        attr_accessor :label, :format
         # TODO: I cloned this from unit.rb, what's it for?  for measures like Percent that don't get multipliers?
         def generic?; true; end
       end
@@ -66,9 +79,10 @@ module Dataset
     # a non-negative float value
     class Quantity < Base
       @label = 'Unspecified Measure'
+      @format = "%.2f"  # default is two decimals
 
       def initialize(num, options = {})
-        options[:format] ||= "%.2f" # default is two decimals
+        options[:format] ||= self.class.format
         super(num.is_a?(String) ? Quantity.convert(num) : num, options)
       end
 
