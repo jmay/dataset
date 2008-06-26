@@ -14,6 +14,26 @@ describe "merging updates" do
     t1.columns[0].label.should == 'Foo'
     t1.columns[1].label.should == 'Baz'
   end
+
+  it "should add column metadata when missing" do
+    t1 = Dataset::Table.new() # empty spec
+    t2 = Dataset::Table.new(:columns => [{:label => 'Foo'}, {:label => 'Baz'}])
+    t1.merge(t2)
+    t1.columns.size.should == 2
+  end
+
+  it "should add column metadata when missing" do
+    t1 = Dataset::Table.new(:columns => [{:label => 'Foo'}, {:label => 'Baz'}])
+    t2 = Dataset::Table.new()
+    t1.merge(t2)
+    t1.columns.size.should == 2
+  end
+
+  it "should abort when merging mismatched non-empty column lists" do
+    t1 = Dataset::Table.new(:columns => [{:label => 'Foo'}])
+    t2 = Dataset::Table.new(:columns => [{:label => 'Bar'}, {:label => 'Baz'}])
+    lambda {t1.merge(t2)}.should raise_error(RuntimeError)
+  end
 end
 
 describe "role extraction" do

@@ -36,8 +36,17 @@ module Dataset
     def merge(table2)
       @nrows = table2.nrows if table2.nrows
 
-      table2.columns.each_with_index do |col, i|
-        self.columns[i].merge(col)
+      if @columns.empty?
+        # don't have any column info; import the target's column info wholesale
+        @columns = table2.columns
+      elsif table2.columns.empty?
+        # no-op, there's no column metadata in the target to import
+      elsif @columns.size != table2.columns.size
+        raise "Column mismatch between tablespecs"
+      else
+        table2.columns.each_with_index do |col, i|
+          @columns[i].merge(col)
+        end
       end
     end
 

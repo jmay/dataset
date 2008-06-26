@@ -2,6 +2,12 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 require "dataset/number"
 
+describe Dataset::Number do
+  it "should know all the available types" do
+    Dataset::Number.all.should == ["Count", "Dollars", "Index", "People", "Percentage", "Quantity"]
+  end
+end
+
 describe "regular counts" do
   it "should know its name" do
     Dataset::Number.find('Units').should == Dataset::Number::Count

@@ -79,6 +79,8 @@ module Dataset
           }
         }]
       end
+
+      # TODO: def tablespec
     end
 
     def resultspec
@@ -153,6 +155,8 @@ module Dataset
         }]
       end
     end
+
+    # TODO: def tablespec
   end
 
   class Extract < Calculation
@@ -189,13 +193,15 @@ module Dataset
         }]
       end
     end
+
+    # TODO: def tablespec
   end
 
   class Column < Calculation
     label 'column'
     terminal
 
-    attr_reader :column
+    attr_reader :colnum
 
     def self.find(descriptor)
       if descriptor == ""
@@ -206,22 +212,31 @@ module Dataset
     end
 
     def initialize(colnum = nil)
-      @column = colnum.to_i
+      @colnum = colnum.to_i
     end
 
     def ready?
-      @target && @target.measure? && @target.columns[@column] && @target.columns[column].number?
+      @target && @target.measure? && @target.columns[@colnum] && @target.columns[@colnum].number?
+    end
+
+    def columns
+      [@target.chron_columns, @target.dimension_columns, @target.columns[@colnum]].flatten
     end
 
     def recipe
       if ready?
-        columns = [@target.chron_columns, @target.dimension_columns].flatten.map(&:colnum) + [column]
         [{
           :command => 'columns.pl',
           :args => {
-            :columns => columns.join(",")
+            :columns => columns.map(&:colnum).join(",")
           },
         }]
+      end
+    end
+
+    def tablespec
+      if ready?
+        Table.new(:columns => columns.map(&:metadata))
       end
     end
   end

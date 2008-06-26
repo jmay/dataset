@@ -51,6 +51,8 @@ describe "monthly deltas calculation" do
     newtable.chron.should == Dataset::Chron::YYYYMM
     newtable.measure_column.label.should == 'Monthly change in Sales'
     @calc.should respond_to(:execute)
+
+    # TODO: validate calc.tablespec
   end
 
   it "should require a target with a chron" do
@@ -66,7 +68,6 @@ describe "monthly deltas calculation" do
     table.stubs(:chron).returns(Dataset::Chron::YYYYQ)
     @calc.should_not be_ready
   end
-
 end
 
 # describe "deltas calculation, with time period omitted" do
@@ -121,6 +122,8 @@ describe "baseline calculation" do
 
     calc.should be_ready
     calc.recipe.should == [{:command => 'baseline', :args => { :chroncol => 0, :basechron => 1995 }}]
+
+    # TODO: validate calc.tablespec
   end
 end
 
@@ -171,6 +174,8 @@ describe "extract calculation" do
     calc.should be_ready
 
     calc.recipe.should == [{:command => 'filter', :args => { :column => 0, :value => 'California' }}]
+
+    # TODO: validate calc.tablespec
   end
 end
 
@@ -216,6 +221,10 @@ describe "measure-column extraction calculation" do
     calc.should be_ready
 
     calc.recipe.should == [{:command => 'columns.pl', :args => { :columns => "0,1" }}]
+    spec = calc.tablespec
+    spec.columns.size.should == 2
+    spec.columns[0].metadata[:chron].should == 'YYYYMM'
+    spec.columns[1].metadata[:number].should == 'Unspecified Measure'
   end
 end
 
