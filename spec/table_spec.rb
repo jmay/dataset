@@ -141,6 +141,11 @@ describe "runlog vs user column labeling" do
     table.columns.size.should == 4
     table.columns.each {|col| col.metadata.should include(:heading)}
   end
+
+  it "should use default column labeling if nothing else provided" do
+    ts = Dataset::Table.new(:columns => [{:heading => '', :chron => 'YYYY'}])
+    ts.columns[0].name_or_default.should == 'Year'
+  end
 end
 
 describe "column range metadata" do

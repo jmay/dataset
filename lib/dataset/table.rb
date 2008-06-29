@@ -2,6 +2,8 @@
 # TODO: user-provided vs system-automated metadata, esp. user-provided column labels
 
 require "facets/hash"
+require "facets/blank"
+# require "facets"
 
 module Dataset
   class Table
@@ -227,7 +229,10 @@ module Dataset
     end
 
     def name_or_default
-      name || (chron? && chron.label) || (number? && number.label)
+      return name unless name.blank?
+      return chron.label if chron?
+      return number.label if number?
+      ''
     end
 
     def chron?
