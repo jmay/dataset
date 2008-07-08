@@ -137,6 +137,7 @@ module Dataset
     # float, format output with leading '$'; for negatives, minus sign before the '$'
     class Dollars < Quantity
       @label = 'Dollars'
+      def self.generic?; false; end
 
       def initialize(num, options = {})
         options[:format] = "%.2f"

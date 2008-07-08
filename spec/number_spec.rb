@@ -113,7 +113,7 @@ describe "dollars" do
   it "should know its name" do
     Dataset::Number.find('Dollars').should == Dataset::Number::Dollars
     Dataset::Number::Dollars.label.should == 'Dollars'
-    Dataset::Number::Dollars.should be_generic
+    Dataset::Number::Dollars.should_not be_generic
   end
 
   it "should convert strings" do

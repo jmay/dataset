@@ -304,6 +304,37 @@ describe "row processing with full tablespec" do
     rows = @table.read(@datafile, :skip_number_formatting => true)
     rows.each {|row| row.last.should be_kind_of(String)}
   end
+
+  it "should be able to give rows in reverse order" do
+    rows = @table.read(@datafile, :reverse => true)
+    rows.size.should == 530
+    rows.first[0].should == Dataset::Chron::YYYYMM.new("2/2008")
+    rows.last[0].should == Dataset::Chron::YYYYMM.new("1/1964")
+  end
+
+  it "should be able to give rows in reverse order, with limit" do
+    rows = @table.read(@datafile, :reverse => true, :limit => 20)
+    rows.size.should == 20
+    rows.first[0].should == Dataset::Chron::YYYYMM.new("2/2008")
+    rows.last[0].should == Dataset::Chron::YYYYMM.new("7/2006")
+  end
+
+  it "should handle reverse, with offset" do
+    rows = @table.read(@datafile, :reverse => true, :limit => 20, :offset => 50)
+    rows.size.should == 20
+    rows.first[0].should == Dataset::Chron::YYYYMM.new("12/2003")
+    rows.last[0].should == Dataset::Chron::YYYYMM.new("5/2002")
+  end
+
+  it "should handle reverse, with streaming" do
+    nrows = 0
+    @table.read(@datafile, :reverse => true, :limit => 30, :offset => 100) do |row|
+      row.first.should <= Dataset::Chron::YYYYMM.new("10/1999")
+      row.first.should >= Dataset::Chron::YYYYMM.new("5/1997")
+      nrows += 1
+    end
+    nrows.should == 30
+  end
 end
 
 # for a tablespec that has no column metadata, #read must still work
