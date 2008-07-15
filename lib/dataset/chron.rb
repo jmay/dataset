@@ -575,9 +575,10 @@ module Dataset
       end
 
       def init_string(input)
-        yyyy, q = input.scan(/^(\d\d\d\d)[Qq.](\d)$/)[0]
-        raise "invalid format #{input}" if yyyy.nil? or q.nil?
+        yyyy, q, skip, dd = input.scan(/^(\d\d\d\d)[Qq.-](\d\d?)(-(\d+))?$/)[0]
+        raise "Invalid input #{input}" if yyyy.nil? or q.nil?
         raise "Invalid input #{input}" if yyyy.to_i < 1000 or yyyy.to_i > 2999 or q.to_i > 4
+        raise "Invalid input #{input}" if dd && dd.to_i != 1
         @internal = { :year => yyyy.to_i, :quarter => q.to_i }
       end
 

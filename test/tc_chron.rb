@@ -428,13 +428,10 @@ class TestChron < Test::Unit::TestCase
   def test_chron_index_conversions
     assert_equal(24067, Dataset::Chron::YYYYMM.new("August 2005").index)
     assert_equal(Dataset::Chron::YYYYMM.new("Aug 2005"), Dataset::Chron::YYYYMM.new(:index => 24067))
-    assert_equal(Dataset::Chron::YYYYMM.new("Aug 2005"), Dataset::Chron::YYYYMM.new(:index => '24067'))
     assert_equal(8022, Dataset::Chron::YYYYQ.new("2005Q3").index)
     assert_equal(Dataset::Chron::YYYYQ.new("2005Q3"), Dataset::Chron::YYYYQ.new(:index => 8022))
-    assert_equal(Dataset::Chron::YYYYQ.new("2005Q3"), Dataset::Chron::YYYYQ.new(:index => '8022'))
     assert_equal(2003, Dataset::Chron::YYYY.new("2003").index)
     assert_equal(Dataset::Chron::YYYY.new("2003"), Dataset::Chron::YYYY.new(:index => 2003))
-    assert_equal(Dataset::Chron::YYYY.new("2003"), Dataset::Chron::YYYY.new(:index => '2003'))
   end
 
 end
