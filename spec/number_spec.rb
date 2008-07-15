@@ -128,3 +128,31 @@ describe "dollars" do
     Dataset::Number::Dollars.new("-91.6").to_s.should == "-$91.60"
   end
 end
+
+describe "index values" do
+  it "should know its name" do
+    Dataset::Number.find('Index').should == Dataset::Number::Index
+    Dataset::Number::Index.label.should == 'Index'
+    Dataset::Number::Index.should be_generic
+  end
+
+  it "should convert strings" do
+    Dataset::Number::Index.new("4.3").value.should == 4.3
+    Dataset::Number::Index.new("+14.3").value.should == 14.3
+    Dataset::Number::Index.new("-91").value.should == -91
+  end
+  
+  it "should display with consistent number of decimals" do
+    Dataset::Number::Index.new("4").to_s.should == "4.0"
+    Dataset::Number::Index.new("+14.3").to_s.should == "14.3"
+    Dataset::Number::Index.new("-91").to_s.should == "-91.0"
+  end
+
+  it "should put commas in output" do
+    Dataset::Number::Index.new("12345.6789").to_s.should == "12,345.7"
+  end
+
+  it "should support format override, not put commas after the decimal" do
+    Dataset::Number::Index.new("12345.6789", :format => '%.4f').to_s.should == "12,345.6789"
+  end
+end

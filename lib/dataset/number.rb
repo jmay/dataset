@@ -113,8 +113,9 @@ module Dataset
     end
 
     # a positive float; might restrict some math operations
-    class Index < Base
+    class Index < Quantity
       @label = 'Index'
+      @format = "%.1f"  # default is one decimal
     end
 
     # an integer; always show the sign when displaying
