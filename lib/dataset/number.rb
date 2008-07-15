@@ -71,11 +71,17 @@ module Dataset
         unless options[:format]
           options[:format] = options[:multiplier] ? "%.1f" : self.class.format
         end
-        super(num.is_a?(String) ? Count.convert(num) : num, options)
+        super(num.is_a?(String) ? convert(num, options) : num, options)
       end
 
-      def Count.convert(str)
-        str.gsub(/(\d),(\d)/, '\1\2').to_f
+      def convert(str, options)
+        raise "Invalid number value '#{str}'" if str !~ /\d/
+
+        if options[:multiplier]
+          str.gsub(/(\d),(\d)/, '\1\2').to_f
+        else
+          str.gsub(/(\d),(\d)/, '\1\2').to_f.round.to_i
+        end
       end
     end
 

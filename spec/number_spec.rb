@@ -47,6 +47,14 @@ describe "regular counts" do
   it "should display with decimals if multiplier > 1" do
     Dataset::Number::Count.new("47.9", :multiplier => 1000).to_s.should == "47.9"
   end
+
+  it "should raise error on unacceptable input" do
+    lambda {Dataset::Number::Count.new("n/a")}.should raise_error(RuntimeError, "Invalid number value 'n/a'")
+    lambda {Dataset::Number::Count.new("---")}.should raise_error(RuntimeError, "Invalid number value '---'")
+    lambda {Dataset::Number::Count.new("NA")}.should raise_error(RuntimeError, "Invalid number value 'NA'")
+    lambda {Dataset::Number::Count.new("()")}.should raise_error(RuntimeError, "Invalid number value '()'")
+    lambda {Dataset::Number::Count.new("")}.should raise_error(RuntimeError, "Invalid number value ''")
+  end
 end
 
 describe "float quantities" do
