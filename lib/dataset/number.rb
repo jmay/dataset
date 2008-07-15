@@ -64,15 +64,18 @@ module Dataset
     # a non-negative integer value
     class Count < Base
       @label = 'Units'
+      @format = "%.0f"
 
       def initialize(num, options = {})
         # raise "Must be non-negative" if num < 0
-        options[:format] = "%d"
+        unless options[:format]
+          options[:format] = options[:multiplier] ? "%.1f" : self.class.format
+        end
         super(num.is_a?(String) ? Count.convert(num) : num, options)
       end
 
       def Count.convert(str)
-        str.gsub(/(\d),(\d)/, '\1\2').to_i
+        str.gsub(/(\d),(\d)/, '\1\2').to_f
       end
     end
 

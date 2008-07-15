@@ -38,6 +38,15 @@ describe "regular counts" do
     Dataset::Number::Count.new("12345").to_s.should == "12,345"
     Dataset::Number::Count.new("-1234567").to_s.should == "-1,234,567"
   end
+
+  it "should round decimals if no multiplier" do
+    Dataset::Number::Count.new("47.9").to_s.should == "48"
+    Dataset::Number::Count.new("47.1").to_s.should == "47"
+  end
+
+  it "should display with decimals if multiplier > 1" do
+    Dataset::Number::Count.new("47.9", :multiplier => 1000).to_s.should == "47.9"
+  end
 end
 
 describe "float quantities" do
