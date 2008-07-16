@@ -15,12 +15,13 @@ module Dataset
 
     def self.find(label)
       if label =~ /^%/
+        # these are on-demand number types where the format is the same as the label (a sprintf format string)
         klass = KLASSES[label]
         return klass if klass
 
         klass = Class.new(Quantity)
-        klass.instance_variable_set('@format', label)
-        klass.instance_variable_set('@label', label)
+        klass.format = klass.label = label
+        klass.label = label
         KLASSES[label] = klass
       else
         # look up 
@@ -164,6 +165,7 @@ module Dataset
     # also a non-negative integer
     class People < Count
       @label = 'People'
+      @format = "%.0f"  # TODO: I wish that inheritance would make this unnecessary
     end
 
     # a positive float, measuring time in seconds?

@@ -173,3 +173,52 @@ describe "index values" do
     Dataset::Number::Index.new("12345.6789", :format => '%.4f').to_s.should == "12,345.6789"
   end
 end
+
+describe "population figures" do
+  it "should know its name" do
+    Dataset::Number.find('People').should == Dataset::Number::People
+    Dataset::Number::People.label.should == 'People'
+    Dataset::Number::People.should be_generic
+  end
+
+  it "should convert strings" do
+    Dataset::Number::People.new("27").value.should == 27
+  end
+
+  it "should strip trailing alphas" do
+    Dataset::Number::People.new("27b").value.should == 27
+  end
+
+  it "should handle sign" do
+    Dataset::Number::People.new("-142").value.should == -142
+    Dataset::Number::People.new("+93").value.should == 93
+    Dataset::Number::People.new("+07").value.should == 7
+  end
+
+  it "should strip commas" do
+    Dataset::Number::People.new("12,123").value.should == 12123
+    Dataset::Number::People.new("-1,234,123").value.should == -1234123
+  end
+
+  it "should display with commas" do
+    Dataset::Number::People.new("12345").to_s.should == "12,345"
+    Dataset::Number::People.new("-1234567").to_s.should == "-1,234,567"
+  end
+
+  it "should round decimals if no multiplier" do
+    Dataset::Number::People.new("47.9").to_s.should == "48"
+    Dataset::Number::People.new("47.1").to_s.should == "47"
+  end
+
+  it "should display with decimals if multiplier > 1" do
+    Dataset::Number::People.new("47.9", :multiplier => 1000).to_s.should == "47.9"
+  end
+
+  it "should raise error on unacceptable input" do
+    lambda {Dataset::Number::People.new("n/a")}.should raise_error(RuntimeError, "Invalid number value 'n/a'")
+    lambda {Dataset::Number::People.new("---")}.should raise_error(RuntimeError, "Invalid number value '---'")
+    lambda {Dataset::Number::People.new("NA")}.should raise_error(RuntimeError, "Invalid number value 'NA'")
+    lambda {Dataset::Number::People.new("()")}.should raise_error(RuntimeError, "Invalid number value '()'")
+    lambda {Dataset::Number::People.new("")}.should raise_error(RuntimeError, "Invalid number value ''")
+  end
+end
