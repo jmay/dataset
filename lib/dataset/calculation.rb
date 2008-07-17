@@ -83,14 +83,6 @@ module Dataset
       # TODO: def tablespec
     end
 
-    def resultspec
-      Table.new(:columns => [
-        { :chron => @target.chron_str },
-        { :number => 'Percentage',
-          :label => "Monthly change in #{@target.measure_column.label}" }
-        ])
-    end
-
     def ready?
       @target && !self.class.intervals[@target.chron].nil?
     end
@@ -120,6 +112,54 @@ module Dataset
         }]
       end
     end
+  end
+
+  class AnnualDeltas < Deltas
+    label "ann"
+    terminal
+    self.intervals = { Chron::YYYY => 1, Chron::YYYYQ => 4, Chron::YYYYMM => 12 }
+
+    def resultspec
+      Table.new(:columns => [
+        { :chron => 'YYYY' },
+        { :number => 'Percentage',
+          :label => "Annual change in #{@target.measure_column.label}" }
+        ])
+    end
+  end
+
+  class QuarterlyDeltas < Deltas
+    label "qtr"
+    terminal
+    self.intervals = { Chron::YYYYQ => 1, Chron::YYYYMM => 3 }
+
+    def resultspec
+      Table.new(:columns => [
+        { :chron => 'YYYYQ' },
+        { :number => 'Percentage',
+          :label => "Quarterly change in #{@target.measure_column.label}" }
+        ])
+    end
+  end
+
+  class MonthlyDeltas < Deltas
+    label "mon"
+    terminal
+    self.intervals = { Chron::YYYYMM => 1 }
+
+    def resultspec
+      Table.new(:columns => [
+        { :chron => 'YYYYMM' },
+        { :number => 'Percentage',
+          :label => "Monthly change in #{@target.measure_column.label}" }
+        ])
+    end
+  end
+
+  class AnnualDiffs < Diffs
+    label "ann"
+    terminal
+    self.intervals = { Chron::YYYY => 1, Chron::YYYYQ => 4, Chron::YYYYMM => 12 }
 
     def resultspec
       Table.new(:columns => [
@@ -130,40 +170,32 @@ module Dataset
     end
   end
 
-  class AnnualDeltas < Deltas
-    label "ann"
-    terminal
-    self.intervals = { Chron::YYYY => 1, Chron::YYYYQ => 4, Chron::YYYYMM => 12 }
-  end
-
-  class QuarterlyDeltas < Deltas
-    label "qtr"
-    terminal
-    self.intervals = { Chron::YYYYQ => 1, Chron::YYYYMM => 3 }
-  end
-
-  class MonthlyDeltas < Deltas
-    label "mon"
-    terminal
-    self.intervals = { Chron::YYYYMM => 1 }
-  end
-
-  class AnnualDiffs < Diffs
-    label "ann"
-    terminal
-    self.intervals = { Chron::YYYY => 1, Chron::YYYYQ => 4, Chron::YYYYMM => 12 }
-  end
-
   class QuarterlyDiffs < Diffs
     label "qtr"
     terminal
     self.intervals = { Chron::YYYYQ => 1, Chron::YYYYMM => 3 }
+
+    def resultspec
+      Table.new(:columns => [
+        { :chron => 'YYYYQ' },
+        { :number => @target.measure,
+          :label => "Quarterly change in #{@target.measure_column.label}" }
+        ])
+    end
   end
 
   class MonthlyDiffs < Diffs
     label "mon"
     terminal
     self.intervals = { Chron::YYYYMM => 1 }
+
+    def resultspec
+      Table.new(:columns => [
+        { :chron => 'YYYYMM' },
+        { :number => @target.measure,
+          :label => "Quarterly change in #{@target.measure_column.label}" }
+        ])
+    end
   end
 
   class Baseline < Calculation
