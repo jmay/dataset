@@ -98,6 +98,36 @@ module Dataset
 
   class Diffs < Changes
     label "abs"
+
+    class << self
+      attr_accessor :intervals
+    end
+
+    def ready?
+      @target && !self.class.intervals[@target.chron].nil?
+    end
+
+    def recipe
+      if ready?
+        [{
+          :command => 'deltas',
+          :args => {
+            :ordercol => @target.chron_columns.first.colnum,
+            :datacol => @target.measure_columns.first.colnum,
+            :interval => self.class.intervals[@target.chron],
+            :percent => false
+          }
+        }]
+      end
+    end
+
+    def resultspec
+      Table.new(:columns => [
+        { :chron => 'YYYY' },
+        { :number => @target.measure,
+          :label => "Annual change in #{@target.measure_column.label}" }
+        ])
+    end
   end
 
   class AnnualDeltas < Deltas
@@ -107,7 +137,7 @@ module Dataset
   end
 
   class QuarterlyDeltas < Deltas
-    label "ann"
+    label "qtr"
     terminal
     self.intervals = { Chron::YYYYQ => 1, Chron::YYYYMM => 3 }
   end
@@ -120,6 +150,20 @@ module Dataset
 
   class AnnualDiffs < Diffs
     label "ann"
+    terminal
+    self.intervals = { Chron::YYYY => 1, Chron::YYYYQ => 4, Chron::YYYYMM => 12 }
+  end
+
+  class QuarterlyDiffs < Diffs
+    label "qtr"
+    terminal
+    self.intervals = { Chron::YYYYQ => 1, Chron::YYYYMM => 3 }
+  end
+
+  class MonthlyDiffs < Diffs
+    label "mon"
+    terminal
+    self.intervals = { Chron::YYYYMM => 1 }
   end
 
   class Baseline < Calculation
