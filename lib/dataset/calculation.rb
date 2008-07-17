@@ -273,7 +273,7 @@ module Dataset
     # TODO: def tablespec
   end
 
-  class Column < Calculation
+  class ExtractColumn < Calculation
     label 'column'
     terminal
 
@@ -310,7 +310,7 @@ module Dataset
       end
     end
 
-    def tablespec
+    def resultspec
       if ready?
         Table.new(:columns => columns.map(&:metadata))
       end

@@ -291,7 +291,7 @@ describe "measure-column extraction calculation" do
     calc.should be_ready
 
     calc.recipe.should == [{:command => 'columns.pl', :args => { :columns => "0,1" }}]
-    spec = calc.tablespec
+    spec = calc.resultspec
     spec.columns.size.should == 2
     spec.columns[0].metadata[:chron].should == 'YYYYMM'
     spec.columns[1].metadata[:number].should == 'Unspecified Measure'
