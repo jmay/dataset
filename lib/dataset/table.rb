@@ -50,6 +50,7 @@ module Dataset
           @columns[i].merge(col)
         end
       end
+      self
     end
 
     # process file as stream (if block provided) or batch

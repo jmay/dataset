@@ -104,10 +104,12 @@ module Dataset
     # a non-negative percentage
     class Percentage < Base
       @label = 'Percent'
+      @format = "%0.1f%%" # default is one decimal
+
       def self.generic?; false; end
 
       def initialize(num, options = {})
-        options[:format] ||= "%.0f%%" # default is zero decimals
+        options[:format] ||= self.class.format
         options[:multiplier] = 0.01
         super(num.is_a?(String) ? Percentage.convert(num) : num, options)
       end

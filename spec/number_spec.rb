@@ -117,8 +117,10 @@ describe 'percentages' do
     Dataset::Number::Percentage.new(4.3).value.should == 0.043
   end
 
-  it "should by default display with no decimals" do
-    Dataset::Number::Percentage.new(4.3).to_s.should == "4%"
+  it "should by default display with one decimal" do
+    Dataset::Number::Percentage.new(4.3).to_s.should == "4.3%"
+    Dataset::Number::Percentage.new('4').to_s.should == "4.0%"
+    Dataset::Number::Percentage.new(42.28).to_s.should == "42.3%"
   end
 
   it "should support formatting control" do
