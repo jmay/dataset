@@ -122,7 +122,7 @@ module Dataset
     def resultspec
       Table.new(:columns => [
         { :chron => 'YYYY' },
-        { :number => 'Percentage',
+        { :number => 'Percent',
           :label => "Annual change in #{@target.measure_column.label}" }
         ])
     end
@@ -136,7 +136,7 @@ module Dataset
     def resultspec
       Table.new(:columns => [
         { :chron => 'YYYYQ' },
-        { :number => 'Percentage',
+        { :number => 'Percent',
           :label => "Quarterly change in #{@target.measure_column.label}" }
         ])
     end
@@ -150,7 +150,7 @@ module Dataset
     def resultspec
       Table.new(:columns => [
         { :chron => 'YYYYMM' },
-        { :number => 'Percentage',
+        { :number => 'Percent',
           :label => "Monthly change in #{@target.measure_column.label}" }
         ])
     end

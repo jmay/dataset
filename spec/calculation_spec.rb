@@ -49,6 +49,7 @@ describe "monthly deltas calculation" do
     newtable = @calc.resultspec
     newtable.columns.size.should == 2
     newtable.chron.should == Dataset::Chron::YYYYMM
+    newtable.measure.units.should == Dataset::Number::Percentage
     newtable.measure_column.label.should == 'Monthly change in Sales'
     @calc.should respond_to(:execute)
 
@@ -98,6 +99,7 @@ describe "quarterly deltas calculation" do
     newtable = calc.resultspec
     newtable.columns.size.should == 2
     newtable.chron.should == Dataset::Chron::YYYYQ
+    newtable.measure.units.should == Dataset::Number::Percentage
     newtable.measure_column.label.should == 'Quarterly change in CPI'
     calc.should respond_to(:execute)
   end

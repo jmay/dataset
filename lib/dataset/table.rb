@@ -23,9 +23,9 @@ module Dataset
       stagedata = runlog['stagelogs']
       return nil if stagedata.nil?
 
-      nrows = stagedata.map{|stage| stage[:nrows]}.compact.last.to_i
+      nrows = stagedata.map{|stage| stage && stage[:nrows]}.compact.last.to_i
 
-      columndata = stagedata.map{|v| v[:columns] || []}
+      columndata = stagedata.map{|stage| stage && stage[:columns] || []}
       ncols = columndata.map{|cols| cols.size}.max
       merged_coldata = []
       if ncols && ncols > 0
