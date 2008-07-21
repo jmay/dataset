@@ -10,7 +10,7 @@ module Dataset
     KLASSES = {}
     
     def self.all
-      self.constants.find_all {|c| self.const_get(c).respond_to?(:label) && self.const_get(c).label}.sort
+      self.constants.find_all {|c| self.const_get(c).instance_variable_defined?(:@label)}.map {|c| self.const_get(c).label}.sort
     end
 
     def self.find(label)

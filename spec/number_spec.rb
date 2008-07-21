@@ -4,7 +4,7 @@ require "dataset/number"
 
 describe Dataset::Number do
   it "should know all the available types" do
-    Dataset::Number.all.should == ["Count", "Dollars", "Index", "People", "Percentage", "Quantity"]
+    Dataset::Number.all.should == ["Dollars", "Index", "People", "Percent", "Units", "Unspecified Measure"]
   end
 end
 
