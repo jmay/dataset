@@ -98,7 +98,7 @@ describe "quarterly deltas calculation" do
     calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 3, :percent => true }}]
     newtable = calc.resultspec
     newtable.columns.size.should == 2
-    newtable.chron.should == Dataset::Chron::YYYYQ
+    newtable.chron.should == Dataset::Chron::YYYYMM
     newtable.measure.units.should == Dataset::Number::Percentage
     newtable.measure_column.label.should == 'Quarterly change in CPI'
     calc.should respond_to(:execute)
@@ -132,7 +132,7 @@ describe "annual diffs calculation" do
     calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 12, :percent => false }}]
     newtable = calc.resultspec
     newtable.columns.size.should == 2
-    newtable.chron.should == Dataset::Chron::YYYY
+    newtable.chron.should == Dataset::Chron::YYYYMM
     newtable.measure_column.label.should == 'Annual change in Sales'
     calc.should respond_to(:execute)
 
