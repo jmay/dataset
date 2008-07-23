@@ -4,6 +4,7 @@ module Dataset
   def recipe_to_script(recipe)
     script = ""
     recipe.each do |stage|
+      next if stage['command'].nil?
       script << stage['command']
       if stage['args']
         stage['args'].each_pair do |k,v|
@@ -24,7 +25,8 @@ module Dataset
   def script_to_recipe(script)
     recipe = []
     script.each_line do |line|
-      words = Shellwords.shellwords(line)
+      words = Shellwords.shellwords(line.strip)
+      next if words.empty?
       command = words.shift
 
       args = {}

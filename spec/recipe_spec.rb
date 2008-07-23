@@ -15,6 +15,11 @@ describe 'stringifying recipes' do
     recipe = [ {'command' => 'stage1'}, {'command' => 'stage2'} ]
     Dataset.recipe_to_script(recipe).should == "stage1\nstage2\n"
   end
+
+  it "should ignore junk in the recipe" do
+    recipe = [ {'command' => 'stage1'}, {'command' => nil} ]
+    Dataset.recipe_to_script(recipe).should == "stage1\n"
+  end
 end
 
 describe "constructing recipes from strings" do
@@ -31,5 +36,10 @@ describe "constructing recipes from strings" do
   it "should handle multi-value args" do
     script = "stage1 --param 'foo' --param 'bar'"
     Dataset.script_to_recipe(script).should == [ {'command' => 'stage1', 'args' => {'param' => ['foo', 'bar']}} ]
+  end
+
+  it "should ignore extra whitespace" do
+    script = "   stage1 --param 'foo'\n\n"
+    Dataset.script_to_recipe(script).should == [ {'command' => 'stage1', 'args' => {'param' => 'foo'}} ]
   end
 end
