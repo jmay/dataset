@@ -527,8 +527,12 @@ module Dataset
 #       undef init_hash
 
       def init_hash(hash)
-        raise "not supported" unless hash[:yyyy]
-        @internal = hash[:yyyy]
+        if hash.include?(:index) && index = hash[:index]
+          @internal = index
+        else
+          raise "not supported" unless hash[:yyyy]
+          @internal = hash[:yyyy]
+        end
       end
 
       # def init_numeric(value)
@@ -538,16 +542,21 @@ module Dataset
       # end
 
       def init_string(value)
-        yyyy, nextyear = value.scan(/^(\d\d\d\d)[-\/](\d\d\d?\d?)$/)[0]
-        raise "invalid value #{value} for SchoolYear" unless nextyear.to_i % 100 == (yyyy.to_i + 1) % 100
-        @internal = yyyy.to_i + 1
+        yyyy, ignore, nextyear = value.scan(/^(\d\d\d\d)([-\/](\d\d\d?\d?)$|$)/)[0]
+        if yyyy && !nextyear # just a year
+          @internal = yyyy
+        else
+          raise "invalid value #{value} for SchoolYear" unless nextyear.to_i % 100 == (yyyy.to_i + 1) % 100
+          @internal = yyyy.to_i + 1
+        end
       end
 
       def to_s
         raise RuntimeError unless defined? @internal
-        yy = sprintf("%02d", (@internal - 1) % 100)
-        yy1 = sprintf("%02d", @internal % 100)
-        "#{yy}-#{yy1}"
+        @internal.to_s
+        # yy = sprintf("%02d", (@internal - 1) % 100)
+        # yy1 = sprintf("%02d", @internal % 100)
+        # "#{yy}-#{yy1}"
       end
 
       def next(step_chron = self.class)

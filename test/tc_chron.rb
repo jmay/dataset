@@ -55,28 +55,36 @@ class TestChron < Test::Unit::TestCase
   def test_school_year
     sy04 = Dataset::Chron::SchoolYear.new("2003-04")
     assert_equal(2004, sy04.value)
-    assert_equal("03-04", sy04.to_s)
+    # assert_equal("03-04", sy04.to_s)
+    assert_equal("2004", sy04.to_s)
     # crossing the 1999/2000 boundary
     sy00 = Dataset::Chron::SchoolYear.new("1999-00")
     assert_equal(2000, sy00.value)
-    assert_equal("99-00", sy00.to_s)
+    # assert_equal("99-00", sy00.to_s)
+    assert_equal("2000", sy00.to_s)
 
-    assert_equal("05-06", Dataset::Chron::SchoolYear.new("2005/06").to_s)
+    # assert_equal("05-06", Dataset::Chron::SchoolYear.new("2005/06").to_s)
 #     assert_equal("05-06", Dataset::Chron::SchoolYear.new(2006).to_s)
+    assert_equal("2006", Dataset::Chron::SchoolYear.new("2005/06").to_s)
 
-    assert_equal("00-01", sy00.next.to_s)
-    assert_equal("98-99", sy00.prev.to_s)
-    assert_equal("02-03", sy00.step(3).to_s)
+    # assert_equal("00-01", sy00.next.to_s)
+    # assert_equal("98-99", sy00.prev.to_s)
+    # assert_equal("02-03", sy00.step(3).to_s)
+    assert_equal("2001", sy00.next.to_s)
+    assert_equal("1999", sy00.prev.to_s)
+    assert_equal("2003", sy00.step(3).to_s)
 
     assert_raise(NoMethodError) { Dataset::Chron::SchoolYear.new(2006) }
-    assert_equal("05-06", Dataset::Chron::SchoolYear.new(:yyyy => 2006).to_s)
+    # assert_equal("05-06", Dataset::Chron::SchoolYear.new(:yyyy => 2006).to_s)
+    assert_equal("2006", Dataset::Chron::SchoolYear.new(:yyyy => 2006).to_s)
 
     sy_yaml = YAML.load(sy04.to_yaml)
     assert_same(sy04, sy_yaml)
 
     sy05 = Dataset::Chron::SchoolYear.new("2005-2006")
     assert_equal(2006, sy05.value)
-    assert_equal("05-06", sy05.to_s)
+    # assert_equal("05-06", sy05.to_s)
+    assert_equal("2006", sy05.to_s)
   end
 
   def test_next
@@ -86,8 +94,10 @@ class TestChron < Test::Unit::TestCase
     assert_equal("04/2001", Dataset::Chron::YYYYMM.new("200105").prev.to_s)
     assert_equal("01/2006", Dataset::Chron::YYYYMM.new("200512").next.to_s)
     assert_equal("12/2005", Dataset::Chron::YYYYMM.new("200601").prev.to_s)
-    assert_equal("05-06", Dataset::Chron::SchoolYear.new("2004-05").next.to_s)
-    assert_equal("03-04", Dataset::Chron::SchoolYear.new("2004-05").prev.to_s)
+    # assert_equal("05-06", Dataset::Chron::SchoolYear.new("2004-05").next.to_s)
+    # assert_equal("03-04", Dataset::Chron::SchoolYear.new("2004-05").prev.to_s)
+    assert_equal("2006", Dataset::Chron::SchoolYear.new("2004-05").next.to_s)
+    assert_equal("2004", Dataset::Chron::SchoolYear.new("2004-05").prev.to_s)
   end
 
   # def test_names
