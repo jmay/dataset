@@ -845,9 +845,18 @@ module Dataset
         @internal = date
       end
 
+      def init_hash(hash)
+        if hash.include?(:index) && index = hash[:index]
+          @internal = Date.jd(Date.mjd_to_jd(index))
+        else
+          raise "invalid input for YYMMDD"
+        end
+      end
+
       def value
         @internal.mjd
       end
+      def index; @internal.mjd; end
 
       def to_s
         @internal.to_s

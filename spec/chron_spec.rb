@@ -31,3 +31,15 @@ describe "school year" do
     Dataset::Chron::SchoolYear.new(:index => 2007).to_s.should == '2007'
   end
 end
+
+describe "dates (days, not months or years)" do
+  it "should support strptime formats" do
+    dt = Dataset::Chron::YYMMDD.new(Date.strptime('1-Jan-00', '%d-%b-%y'))
+    dt.to_s.should == '2000-01-01'
+    dt.index.should == 51544
+  end
+
+  it "should instantiate from index" do
+    Dataset::Chron::YYMMDD.new(:index => 51544).to_s.should == '2000-01-01'
+  end
+end
