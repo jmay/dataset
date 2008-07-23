@@ -83,6 +83,12 @@ describe "float quantities" do
   it "should support format override, not put commas after the decimal" do
     Dataset::Number::Quantity.new("12345.6789", :format => '%.4f').to_s.should == "12,345.6789"
   end
+
+  it "should reject bad input" do
+    lambda {Dataset::Number::Quantity.new("n/a")}.should raise_error(RuntimeError, "Invalid number value 'n/a'")
+    lambda {Dataset::Number::Quantity.new("ND")}.should raise_error(RuntimeError, "Invalid number value 'ND'")
+    lambda {Dataset::Number::Quantity.new("")}.should raise_error(RuntimeError, "Invalid number value ''")
+  end
 end
 
 describe "floats with custom formats" do
@@ -145,6 +151,12 @@ describe "dollars" do
     Dataset::Number::Dollars.new("4.3").to_s.should == "$4.30"
     Dataset::Number::Dollars.new("+1234.3").to_s.should == "$1,234.30"
     Dataset::Number::Dollars.new("-91.6").to_s.should == "-$91.60"
+  end
+
+  it "should reject bad input" do
+    lambda {Dataset::Number::Dollars.new("n/a")}.should raise_error(RuntimeError, "Invalid number value 'n/a'")
+    lambda {Dataset::Number::Dollars.new("ND")}.should raise_error(RuntimeError, "Invalid number value 'ND'")
+    lambda {Dataset::Number::Dollars.new("")}.should raise_error(RuntimeError, "Invalid number value ''")
   end
 end
 

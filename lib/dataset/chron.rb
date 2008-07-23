@@ -805,6 +805,8 @@ module Dataset
 
     class YYMMDD < Base
       @label = "Year-Month-Day"
+      @interval = 1
+      @intervals = [1, 7, 28, 365]
 
       def init_string(value)
         @internal = case value
@@ -847,10 +849,14 @@ module Dataset
 
       def init_hash(hash)
         if hash.include?(:index) && index = hash[:index]
-          @internal = Date.jd(Date.mjd_to_jd(index))
+          init_numeric(index)
         else
           raise "invalid input for YYMMDD"
         end
+      end
+
+      def init_numeric(value)
+        @internal = Date.jd(Date.mjd_to_jd(value))
       end
 
       def value

@@ -42,4 +42,10 @@ describe "dates (days, not months or years)" do
   it "should instantiate from index" do
     Dataset::Chron::YYMMDD.new(:index => 51544).to_s.should == '2000-01-01'
   end
+
+  # it "should support prev & next" do
+  #   now = Dataset::Chron::YYMMDD.new('2008-04-15')
+  #   now.next.to_s.should == '2008-04-16'
+  #   now.prev.to_s.should == '2008-04-14'
+  # end
 end

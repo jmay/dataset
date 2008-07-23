@@ -97,6 +97,8 @@ module Dataset
       end
 
       def Quantity.convert(str)
+        raise "Invalid number value '#{str}'" if str !~ /\d/
+
         str.gsub(/(\d),(\d)/, '\1\2').to_f
       end
     end
