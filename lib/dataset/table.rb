@@ -83,7 +83,7 @@ module Dataset
       @rows = []
       File.open(datafile).each do |line|
         fields = line.chomp.split("\t")
-        row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
+        row = fields.zip(@columns).map {|v, col| col ? col.interpret(v, args) : v}
 
         next if args[:tmin] && row[chron_column.colnum] < args[:tmin]
         next if args[:tmax] && row[chron_column.colnum] > args[:tmax]
@@ -117,7 +117,8 @@ module Dataset
         next if i < offset
         fields = line.chomp.split("\t")
         if @columns.any?
-          row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
+          # row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
+          row = fields.zip(@columns).map {|v, col| col ? col.interpret(v, args) : v}
         else
           row = fields
         end

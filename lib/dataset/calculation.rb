@@ -81,8 +81,6 @@ module Dataset
           }
         }]
       end
-
-      # TODO: def tablespec
     end
 
     def ready?
@@ -274,7 +272,11 @@ module Dataset
       end
     end
 
-    # TODO: def tablespec
+    def resultspec
+      if ready?
+        Table.new(:columns => @target.columns.map(&:metadata))
+      end
+    end
   end
 
   class ExtractColumn < Calculation

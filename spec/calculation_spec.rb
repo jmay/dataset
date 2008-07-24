@@ -245,7 +245,11 @@ describe "extract calculation" do
 
     calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 0, :value => 'California', :invert => 0 }}]
 
-    # TODO: validate calc.tablespec
+    spec = calc.resultspec
+    spec.columns.size.should == table.columns.size
+    (0..spec.columns.size-1).each do |n|
+      spec.columns[n].metadata.should == table.columns[n].metadata
+    end
   end
 
   it "should allow spaces and other characters in either the column name or value" do

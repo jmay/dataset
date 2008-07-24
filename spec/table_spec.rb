@@ -383,3 +383,11 @@ describe "table with dimension columns" do
     t1.other_columns.size.should == 2
   end
 end
+
+describe "reading table from file" do
+  it "should pull all the columns" do
+    table = Dataset::Table.new(:columns => [{:label => 'Year'}])
+    rows = table.read(File.dirname(__FILE__) + "/testdata/dummy.tsv")
+    rows.each {|row| row.size.should == 3}
+  end
+end
