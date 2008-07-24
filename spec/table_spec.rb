@@ -57,7 +57,7 @@ describe "role extraction" do
     table.chron.should == Dataset::Chron::YYYYMM
     # table.chron_column.metadata[:chron].should == Dataset::Chron::YYYYMM
 
-    table.dimension_columns.size == 1
+    table.dimension_columns.should be_empty
     table.dimensions.empty?.should be_true
 
     table.measure_columns.size == 1
@@ -368,37 +368,18 @@ describe "column labels" do
   end
 end
 
-# given a Table, we can:
-# * ask what operations is supports (so we can present options to the user)
-# * ask if supports a particular operation (verify against users trying to break the system)
-# * construct the recipe for an operation (for validation)
-# * execute an operation
-# 
-# describe "with YYYYMM/measure" do
-#   before(:all) do
-#     @table = Table.new([{:chron => Dataset::Chron::YYYYMM}, {:units => Dataset::Number::Dollars}])
-#   end
-# 
-#   it "should give list of available calculations" do
-#     calcs = @table.calculations
-#     calcs.should include(Calculation.MonthlyDeltas)
-#     calcs.should include(Calculation.QuarterlyDeltas)
-#     calcs.should include(Calculation.AnnualDeltas)
-#     calcs.should include(Calculation.MonthlyDiffs)
-#     calcs.should include(Calculation.QuarterlyDiffs)
-#     calcs.should include(Calculation.AnnualDiffs)
-# 
-#     calcs.should include(Calculation.Baseline)
-# 
-#     calcs.should include(Calculation.Ratio)
-#   end
-# 
-#   it "should know about unary operations" do
-#     table.supports?(Calculation.MonthlyDeltas)
-#     table.supports?(Calculation.Baseline)
-#   end
-# 
-#   it "should support binary operations" do
-#     table.supports?(Calculation.Ratio)
-#   end
-# end
+describe "table with dimension columns" do
+  it "should understand dimension names and value-sets" do
+    t1 = Dataset::Table.new(:columns => [{:label => 'id code'}, {:label => 'thing name'}, {:label => 'group'}])
+    t1.dimension_columns.should be_empty
+    t1.other_columns.size.should == 3
+
+    t1.columns[2][:values] = [ 'group1', 'group2', 'group3']
+    t1.dimension_columns.should == [t1.columns[2]]
+    t1.dimension_column('group').should_not be_nil
+    t1.dimensions.first.name.should == 'group'
+    t1.dimensions.first.values.size.should == 3
+
+    t1.other_columns.size.should == 2
+  end
+end

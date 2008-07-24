@@ -237,13 +237,26 @@ describe "extract calculation" do
 
   it "should work when target has the right dimension" do
     calc = Dataset::Calculation.find("extract-State-California")
-    table = Dataset::Table.new(:columns => [{:name => 'State'}, {:units => Dataset::Number::Count}])
+    table = Dataset::Table.new(:columns => [{:name => 'State', :values => ['California', 'Arizona']}, {:units => Dataset::Number::Count}])
     calc.target(table)
     # table.stubs(:dimensions).returns([dim = mock])
     # dim.stubs(:name).returns('State')
     calc.should be_ready
 
-    calc.recipe.should == [{:command => 'filter', :args => { :column => 0, :value => 'California' }}]
+    calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 0, :value => 'California', :invert => 0 }}]
+
+    # TODO: validate calc.tablespec
+  end
+
+  it "should allow spaces and other characters in either the column name or value" do
+    calc = Dataset::Calculation.find("extract-school+district-Los+Altos+Elementary")
+    table = Dataset::Table.new(:columns =>
+      [{:name => 'school code'}, {:name => 'school name'}, {:name => 'school district', :values => []}])
+    calc.target(table)
+
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 2, :value => 'Los Altos Elementary', :invert => 0 }}]
 
     # TODO: validate calc.tablespec
   end

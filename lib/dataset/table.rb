@@ -141,6 +141,11 @@ module Dataset
       (chron_columns.size <= 1) && (measure_columns.size >= 1)
     end
 
+    # 'other' columns are neither chrons nor measures nor dimensions
+    def other_columns
+      columns.find_all {|col| !col[:chron] && !col[:number] && !col[:values]}
+    end
+
     def chron_columns
       columns.find_all {|col| !col[:chron].nil?}
     end
@@ -162,15 +167,15 @@ module Dataset
     end
 
     def dimension_columns
-      columns.find_all {|col| !col[:chron] && !col[:number]}
+      columns.find_all {|col| col[:values]}
     end
 
     def dimensions
-      dimension_columns.map {|col| col[:name]}
+      dimension_columns.map {|col| Dimension.new(:name => col.name, :values => col[:values])}
     end
 
     def dimension_column(name)
-      dimension_columns.find {|col| col[:name] == name}
+      dimension_columns.find {|col| col.name == name}
     end
 
     def measure_columns

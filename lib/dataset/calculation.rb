@@ -1,3 +1,5 @@
+require "cgi" # for unescape
+
 module Dataset
   class Calculation
 
@@ -239,7 +241,7 @@ module Dataset
     label 'extract'
     terminal
 
-    attr_reader :dimension_name, :dimension_value
+    attr_reader :dimension_name, :dimension_value, :invert
 
     def self.find(descriptor)
       if descriptor == ""
@@ -249,9 +251,10 @@ module Dataset
       end
     end
 
-    def initialize(name = nil, value = nil)
-      @dimension_name = name
-      @dimension_value = value
+    def initialize(name = nil, value = nil, invert = nil)
+      @dimension_name = CGI.unescape(name) if name
+      @dimension_value = CGI.unescape(value) if value
+      @invert = invert ? true : false
     end
 
     def ready?
@@ -261,10 +264,11 @@ module Dataset
     def recipe
       if ready?
         [{
-          :command => 'filter',
+          :command => 'select_where.pl',
           :args => {
             :column => @target.dimension_column(dimension_name).colnum,
             :value => @dimension_value,
+            :invert => @invert ? 1 : 0
           },
         }]
       end
