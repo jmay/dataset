@@ -274,7 +274,9 @@ module Dataset
 
     def resultspec
       if ready?
-        Table.new(:columns => @target.columns.map(&:metadata))
+        columns = @target.columns
+        columns.delete_at(@target.dimension_column(dimension_name).colnum)
+        Table.new(:columns => columns.map(&:metadata))
       end
     end
   end

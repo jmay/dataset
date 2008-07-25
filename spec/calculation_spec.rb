@@ -237,7 +237,7 @@ describe "extract calculation" do
 
   it "should work when target has the right dimension" do
     calc = Dataset::Calculation.find("extract-State-California")
-    table = Dataset::Table.new(:columns => [{:name => 'State', :values => ['California', 'Arizona']}, {:units => Dataset::Number::Count}])
+    table = Dataset::Table.new(:columns => [{:name => 'State', :values => ['California', 'Arizona']}, {:number => 'Units'}])
     calc.target(table)
     # table.stubs(:dimensions).returns([dim = mock])
     # dim.stubs(:name).returns('State')
@@ -246,10 +246,11 @@ describe "extract calculation" do
     calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 0, :value => 'California', :invert => 0 }}]
 
     spec = calc.resultspec
-    spec.columns.size.should == table.columns.size
-    (0..spec.columns.size-1).each do |n|
-      spec.columns[n].metadata.should == table.columns[n].metadata
-    end
+    spec.columns.size.should == 1
+    spec.columns.first.units.should == Dataset::Number::Count
+    # (0..spec.columns.size-1).each do |n|
+    #   spec.columns[n].metadata.should == table.columns[n].metadata
+    # end
   end
 
   it "should allow spaces and other characters in either the column name or value" do
@@ -262,7 +263,9 @@ describe "extract calculation" do
 
     calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 2, :value => 'Los Altos Elementary', :invert => 0 }}]
 
-    # TODO: validate calc.tablespec
+    spec = calc.resultspec
+    spec.columns.size.should == 2
+    spec.columns.last.name.should == 'school name'
   end
 end
 
