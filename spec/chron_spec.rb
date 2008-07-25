@@ -43,6 +43,19 @@ describe "dates (days, not months or years)" do
     Dataset::Chron::YYMMDD.new(:index => 51544).to_s.should == '2000-01-01'
   end
 
+  it "should support intervals spanning up to decades" do
+    ymd = Dataset::Chron::YYMMDD
+    ymd.intervals.first.should == 1
+    ymd.next_interval_after(1).should == 7
+    ymd.next_interval_after(7).should == 28
+    ymd.next_interval_after(28).should == 90
+    ymd.next_interval_after(90).should == 365
+    ymd.next_interval_after(365).should == 365*2
+    ymd.next_interval_after(365*2).should == 365*5
+    ymd.next_interval_after(365*5).should == 365*10
+    ymd.next_interval_after(365*10).should == 365*25
+  end
+
   # it "should support prev & next" do
   #   now = Dataset::Chron::YYMMDD.new('2008-04-15')
   #   now.next.to_s.should == '2008-04-16'

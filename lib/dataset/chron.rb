@@ -806,7 +806,7 @@ module Dataset
     class YYMMDD < Base
       @label = "Year-Month-Day"
       @interval = 1
-      @intervals = [1, 7, 28, 365]
+      @intervals = [1, 7, 28, 90, 365, 365*2, 365*5, 365*10, 365*25]
 
       def init_string(value)
         @internal = case value
