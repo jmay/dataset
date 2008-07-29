@@ -23,6 +23,9 @@ module Dataset
       stagedata = runlog['stagelogs']
       return nil if stagedata.nil?
 
+      # if any of the pipeline stages failed, abort
+      return nil if stagedata.map{|stage| stage && stage[:error_code]}.compact.any?
+
       nrows = stagedata.map{|stage| stage && stage[:nrows]}.compact.last.to_i
 
       columndata = stagedata.map{|stage| stage && stage[:columns] || []}

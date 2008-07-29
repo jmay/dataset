@@ -130,6 +130,12 @@ describe "table construction from pipeline runlog" do
       row[1].should be_instance_of(Dataset::Number::Quantity)
     end
   end
+
+  # construct 
+  it 'should abort if runlog contains errors' do
+    runlog = { 'stagelogs' => [{ :nrows => 72 }, { :error_code => 1, :errors => [ 'error msg' ]}]}
+    Dataset::Table.from_runlog(runlog).should == nil
+  end
 end
 
 describe "runlog vs user column labeling" do
