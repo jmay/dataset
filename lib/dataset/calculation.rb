@@ -77,7 +77,7 @@ module Dataset
             :ordercol => @target.chron_columns.first.colnum,
             :datacol => @target.measure_columns.first.colnum,
             :interval => self.class.intervals[@target.chron],
-            :percent => true
+            :percent => '1'
           }
         }]
       end
@@ -107,7 +107,7 @@ module Dataset
             :ordercol => @target.chron_columns.first.colnum,
             :datacol => @target.measure_columns.first.colnum,
             :interval => self.class.intervals[@target.chron],
-            :percent => false
+            :percent => '0'
           }
         }]
       end
@@ -164,8 +164,9 @@ module Dataset
     def resultspec
       Table.new(:columns => [
         { :chron => @target.chron_str },
-        { :number => @target.measure,
-          :label => "Annual change in #{@target.measure_column.label}" }
+        { :number => @target.measure.units.label,
+          :multiplier => @target.measure.multiplier,
+          :label => "Annual change in #{@target.measure_column.name}" }
         ])
     end
   end
@@ -178,8 +179,9 @@ module Dataset
     def resultspec
       Table.new(:columns => [
         { :chron => @target.chron_str },
-        { :number => @target.measure,
-          :label => "Quarterly change in #{@target.measure_column.label}" }
+        { :number => @target.measure.units.label,
+          :multiplier => @target.measure.multiplier,
+          :label => "Quarterly change in #{@target.measure_column.name}" }
         ])
     end
   end
@@ -192,8 +194,9 @@ module Dataset
     def resultspec
       Table.new(:columns => [
         { :chron => @target.chron_str },
-        { :number => @target.measure,
-          :label => "Quarterly change in #{@target.measure_column.label}" }
+        { :number => @target.measure.units.label,
+          :multiplier => @target.measure.multiplier,
+          :label => "Monthly change in #{@target.measure_column.name}" }
         ])
     end
   end

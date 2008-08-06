@@ -45,7 +45,7 @@ describe "monthly deltas calculation" do
     # table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
     # table.
     @calc.should be_ready
-    @calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 1, :percent => true }}]
+    @calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 1, :percent => "1" }}]
     newtable = @calc.resultspec
     newtable.columns.size.should == 2
     newtable.chron.should == Dataset::Chron::YYYYMM
@@ -95,7 +95,7 @@ describe "quarterly deltas calculation" do
        ])
     calc.target(table)
     calc.should be_ready
-    calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 3, :percent => true }}]
+    calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 3, :percent => '1' }}]
     newtable = calc.resultspec
     newtable.columns.size.should == 2
     newtable.chron.should == Dataset::Chron::YYYYMM
@@ -124,22 +124,58 @@ describe "annual diffs calculation" do
 
     table = Dataset::Table.new(:columns => [
       {:chron => 'YYYYMM'},
-      {:number => 'Count',
-        :label => 'Sales'}
+      {:number => 'People',
+        :label => 'Employment',
+        :multiplier => :thousand}
        ])
     calc.target(table)
     calc.should be_ready
-    calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 12, :percent => false }}]
+    calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 12, :percent => "0" }}]
     newtable = calc.resultspec
     newtable.columns.size.should == 2
     newtable.chron.should == Dataset::Chron::YYYYMM
-    newtable.measure_column.label.should == 'Annual change in Sales'
+    newtable.measure_column.label.should == 'Annual change in Employment'
+    newtable.measure.multiplier.should == :thousand
+    newtable.measure.units.should == Dataset::Number::People
     calc.should respond_to(:execute)
-
-    # TODO: validate calc.tablespec
   end
 end
 
+describe "monthly diffs calculation" do
+  it "should require target to have monthly chron" do
+    calc = Dataset::Calculation.find("chg-abs-mon")
+    calc.target(table = mock)
+    table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    calc.should be_ready
+    table.stubs(:chron).returns(Dataset::Chron::YYYYQ)
+    calc.should_not be_ready
+    table.stubs(:chron).returns(Dataset::Chron::YYYY)
+    calc.should_not be_ready
+  end
+
+  it "should build recipe & run" do
+    calc = Dataset::Calculation.find("chg-abs-mon")
+    calc.should respond_to(:target)
+    calc.should_not be_ready
+
+    table = Dataset::Table.new(:columns => [
+      {:chron => 'YYYYMM'},
+      {:number => 'Units',
+        :name => 'Total Sales',
+        :multiplier => :million}
+       ])
+    calc.target(table)
+    calc.should be_ready
+    calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 1, :percent => "0" }}]
+    newtable = calc.resultspec
+    newtable.columns.size.should == 2
+    newtable.chron.should == Dataset::Chron::YYYYMM
+    newtable.measure_column.label.should == 'Monthly change in Total Sales'
+    newtable.measure.multiplier.should == :million
+    newtable.measure.units.should == Dataset::Number::Count
+    calc.should respond_to(:execute)
+  end
+end
 # describe "deltas calculation, with time period omitted" do
 #   it "should ask for more info" do
 #     calc = Calculation.find("changes-percent")
