@@ -282,6 +282,7 @@ describe "extract calculation" do
     calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 0, :value => 'California', :invert => 0 }}]
 
     spec = calc.resultspec
+    spec = calc.resultspec # test to make sure that calc#resultspec is not destructive
     spec.columns.size.should == 1
     spec.columns.first.units.should == Dataset::Number::Count
     # (0..spec.columns.size-1).each do |n|

@@ -277,7 +277,7 @@ module Dataset
 
     def resultspec
       if ready?
-        columns = @target.columns
+        columns = @target.columns.dup # separate copy of columns metadata for the new spec, which will be altered
         columns.delete_at(@target.dimension_column(dimension_name).colnum)
         Table.new(:columns => columns.map(&:metadata))
       end
