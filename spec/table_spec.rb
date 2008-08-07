@@ -73,10 +73,25 @@ describe "role extraction" do
 
   it "should handle label attributes for columns" do
     table = Dataset::Table.new(:columns => [
-      {:label => 'State'},
+      {:label => 'State', :values => ['California', 'Delaware']},
       {:number => 'Units', :label => 'Population', :multiplier => 'thousands'}
       ])
-    table.nsf?.should be_true
+    table.should be_nsf
+  end
+
+  it "should be incomplete if chron is not declared" do
+    table = Dataset::Table.new(:columns => [{:name => 'Year'}, {:number => 'Unspecified Measure'}])
+    table.should_not be_nsf
+  end
+
+  it "should be incomplete if measures are not specified" do
+    table = Dataset::Table.new(:columns => [{:chron => 'Year'}, {}])
+    table.should_not be_nsf
+  end
+
+  it "should be complete if every column is either chron, dimension or measure" do
+    table = Dataset::Table.new(:columns => [{:chron => 'Year'}, {:values => ['A', 'B']}, {:number => 'Units'}])
+    table.should be_nsf
   end
 end
 

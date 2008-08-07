@@ -14,7 +14,10 @@ module Dataset
     end
 
     def self.find(label)
-      if label =~ /^%/
+      case label
+      when nil
+        nil
+      when /^%/
         # these are on-demand number types where the format is the same as the label (a sprintf format string)
         klass = KLASSES[label]
         return klass if klass
@@ -174,7 +177,6 @@ module Dataset
 
     # a positive float, measuring time in seconds?
     class Duration < Base
-      
     end
 
 

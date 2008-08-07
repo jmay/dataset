@@ -6,6 +6,10 @@ describe Dataset::Number do
   it "should know all the available types" do
     Dataset::Number.all.should == ["Dollars", "Index", "People", "Percent", "Units", "Unspecified Measure"]
   end
+
+  it "should know names" do
+    Dataset::Number.find(nil).should be_nil
+  end
 end
 
 describe "regular counts" do

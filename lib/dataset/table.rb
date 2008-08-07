@@ -141,8 +141,15 @@ module Dataset
     # a table is NSF if:
     # * at most one (explicitly-specified-as-)chron column
     # * at least one (explicitly-specified-as-)number column
+    # * every column is either a chron, dimension, or measure
+    # def nsf?
+    #   columns.each do |col|
+    #     return false if !col.chron? && !col.dimension? && !col.measure? 
+    #   end
+    #   true
+    # end
     def nsf?
-      (chron_columns.size <= 1) && (measure_columns.size >= 1)
+      (chron_columns.size <= 1) && (measure_columns.size >= 1) && columns.none? {|col| !col.chron? && !col.dimension? && !col.measure?}
     end
 
     # 'other' columns are neither chrons nor measures nor dimensions
@@ -294,6 +301,14 @@ module Dataset
         :units => units,
         :multiplier => @metadata[:multiplier]
         )
+    end
+
+    def measure?
+      ! units.nil?
+    end
+
+    def dimension?
+      ! metadata[:values].nil?
     end
 
     def interpret(value, params = {})
