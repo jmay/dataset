@@ -325,7 +325,7 @@ module Dataset
       if @metadata[:chron]
         chron.new(:index => value.to_i)
       elsif @metadata[:number] && !params[:skip_number_formatting]
-        units.new(value)
+        units.new(value, :verbatim => true)
       else
         value
       end

@@ -136,6 +136,11 @@ describe 'percentages' do
   it "should support formatting control" do
     Dataset::Number::Percentage.new(12.8, :format => "%0.2f%%").to_s.should == "12.80%"
   end
+
+  it "should load verbatim" do
+    Dataset::Number::Percentage.new("0.128", :verbatim => true).to_s.should == "12.8%"
+    Dataset::Number::Percentage.new(0.128, :verbatim => true).to_s.should == "12.8%"
+  end
 end
 
 describe "dollars" do

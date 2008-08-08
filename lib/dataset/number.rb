@@ -114,9 +114,14 @@ module Dataset
       def self.generic?; false; end
 
       def initialize(num, options = {})
-        options[:format] ||= self.class.format
-        options[:multiplier] = 0.01
-        super(num.is_a?(String) ? Percentage.convert(num) : num, options)
+        if options[:verbatim]
+          @value = num.to_f * 100.0
+          @options = {:format => self.class.format}
+        else
+          options[:format] ||= self.class.format
+          options[:multiplier] = 0.01
+          super(num.is_a?(String) ? Percentage.convert(num) : num, options)
+        end
       end
 
       def Percentage.convert(str)

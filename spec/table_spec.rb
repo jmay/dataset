@@ -420,4 +420,11 @@ describe "reading table from file" do
     rows = table.read(File.dirname(__FILE__) + "/testdata/dummy.tsv")
     rows.each {|row| row.size.should == 3}
   end
+
+  it "should parse percentages properly" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:label => 'mydim'}, {:number => 'Percent'}])
+    rows = table.read(File.dirname(__FILE__) + "/testdata/percentages.tsv")
+    rows.each {|row| row.size.should == 3}
+    rows.first.last.to_s.should == '12.3%'
+  end
 end
