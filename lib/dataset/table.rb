@@ -268,6 +268,16 @@ module Dataset
       @metadata[:name] || @metadata[:label] || @metadata[:heading]
     end
 
+    def name=(value)
+      if value.nil?
+        # don't just set the value to nil, remove the key entirely from the spec so that
+        # we are sure that any automatic column name will apply
+        @metadata.delete(:name)
+      else
+        @metadata[:name] = value
+      end
+    end
+
     def name_or_default
       return name unless name.blank?
       return chron.label if chron?

@@ -259,6 +259,15 @@ describe "table metadata updates" do
     table.measure = {'units' => 'Dollars'}
     table.measure_column.units.should == Dataset::Number::Dollars
   end
+
+  it "should allow user modification to column names" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Unspecified Measure'}])
+    table.measure_column.name.should be_nil
+    table.measure_column.name = "End-of-month Inventory"
+    table.measure_column.name.should == "End-of-month Inventory"
+    table.measure_column.name = nil
+    table.measure_column.name.should be_nil
+  end
 end
 
 describe "row processing with full tablespec" do
