@@ -1,5 +1,9 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+# TODO: baseline
+# TODO: ratio
+# TODO: adjust-multiplier (multiply dataset by N)
+
 describe 'calculations' do
   it "should return nil on invalid descriptors" do
     Dataset::Calculation.find('bogus').should be_nil
@@ -355,59 +359,60 @@ describe "measure-column extraction calculation" do
   end
 end
 
-# describe 'Calculations' do
-#   it "should round-trip descriptors" do
-#     Calculation.new('changes-percent-monthly').should == Calculation.MonthlyDeltas
-#     Calculation.new(Calculation.AnnualDiffs.descriptor).should == Calculation.AnnualDiffs
-#     Calculation.new(Calculation.Baseline.descriptor).should == Calculation.Baseline
-#     Calculation.new(Calculation.Ratio.descriptor).should == Calculation.Ratio
-#   end
-# 
-#   it "should contain readable descriptions" do
-#     Calculation.MonthlyDeltas.description.should == 'Monthly Deltas'
-#     Calculation.AnnualDeltas.description.should == 'Annual Deltas'
-#     Calculation.MonthlyDiffs.description.should == 'Monthly Changes'
-#     Calculation.Baseline.description.should == 'Normalized based on...'
-#   end
-# 
-#   it "should ..." do
-#     calc = Calculation.new(:baseline, :at => '1995')
-#     calc.description.should == 'Normalized to 1995=100'
-#   end
-# end
-# 
-# describe "simple unary calculations" do
-#   it "should take no parameters" do
-#     Calculation.AnnualDiffs.param?.should be_false
-#   end
-# end
-# 
-# describe "baseline calculation (unary with param based on target)" do
-#   it "should require a parameter" do
-#     Calculation.Baseline.param?.should be_true
-#   end
-# 
-#   it "should get set of possible value from the target" do
-#     target = mock
-#     target.expects(:chrons).returns(['2000', '2001', '2002'])
-#     Calculation.Baseline.values(target).should == ['2000', '2001', '2002']
-#   end
-# end
-# 
-# describe "adjust multiplier (unary with fixed param)" do
-#   it "should require a parameter" do
-#     Calculation.Multiply.param?.should be_true
-#   end
-# 
-#   it "should get set of possible value from the target" do
-#     target = mock
-#     target.expects(:chrons).returns(['2000', '2001', '2002'])
-#     Calculation.Baseline.values(target).should == ['2000', '2001', '2002']
-#   end
-# end
-# 
-# describe "ratio (binary calculation)" do
-#   it "should know that it needs a targets" do
-#     Calculation.Ratio.param?.should be_true
-#   end
-# end
+describe "simple table merge" do
+  it "should require no parameters" do
+    Dataset::Calculation.find("merge").should be_terminal
+  end
+
+  it "should require two targets" do
+    calc = Dataset::Calculation.find("merge")
+    calc.target(table = mock)
+    calc.should_not be_ready
+  end
+
+  it "should check for mismatched chrons" do
+    calc = Dataset::Calculation.find("merge")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should_not be_ready
+  end
+
+  it "should reject dimension columns" do
+    calc = Dataset::Calculation.find("merge")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => 'State'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should_not be_ready
+
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => 'State'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should_not be_ready
+  end
+
+  it "should require identical chrons" do
+    calc = Dataset::Calculation.find("merge")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units', :name => 'Shipments'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units', :name => 'Backlog'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'merge.rb', :args => { :input => "1", :group1 => "0", :group2 => "0", :pick2 => "1" }}]
+
+    spec = calc.resultspec
+    spec.columns.size.should == 3
+    spec.columns.each do |col|
+      col.metadata.should be_instance_of(Hash)
+    end
+    spec.columns[0].metadata[:chron].should == 'YYYY'
+    spec.columns[1].metadata[:number].should == 'Units'
+    spec.columns[1].name.should == 'Shipments'
+    spec.columns[2].metadata[:number].should == 'Units'
+    spec.columns[2].name.should == 'Backlog'
+  end
+end

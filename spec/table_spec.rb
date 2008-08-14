@@ -427,4 +427,13 @@ describe "reading table from file" do
     rows.each {|row| row.size.should == 3}
     rows.first.last.to_s.should == '12.3%'
   end
+
+  it "should handle missing measure values" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}, {:number => 'Units'}])
+    rows = table.read(File.dirname(__FILE__) + "/testdata/missing.tsv")
+    rows.each {|row| row.size.should == 3}
+    rows.first.last.should be_nil
+    rows[-1][1].should be_nil
+    rows[-2][1].should be_nil
+  end
 end

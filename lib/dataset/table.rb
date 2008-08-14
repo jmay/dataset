@@ -85,7 +85,7 @@ module Dataset
 
       @rows = []
       File.open(datafile).each do |line|
-        fields = line.chomp.split("\t")
+        fields = line.chomp.split("\t", -1) # the -1 means don't drop trailing empty fields
         row = fields.zip(@columns).map {|v, col| col ? col.interpret(v, args) : v}
 
         next if args[:tmin] && row[chron_column.colnum] < args[:tmin]
@@ -118,7 +118,7 @@ module Dataset
       File.open(datafile).each_with_index do |line, i|
         break if limit && i >= offset+limit
         next if i < offset
-        fields = line.chomp.split("\t")
+        fields = line.chomp.split("\t", -1) # the -1 means don't drop trailing empty fields
         if @columns.any?
           # row = @columns.zip(fields).map {|col, v| col.interpret(v, args)}
           row = fields.zip(@columns).map {|v, col| col ? col.interpret(v, args) : v}
@@ -325,7 +325,7 @@ module Dataset
       if @metadata[:chron]
         chron.new(:index => value.to_i)
       elsif @metadata[:number] && !params[:skip_number_formatting]
-        units.new(value, :verbatim => true)
+        value.blank? ? nil : units.new(value, :verbatim => true)
       else
         value
       end

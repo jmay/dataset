@@ -1,5 +1,9 @@
 require "cgi" # for unescape
 
+# TODO: baseline
+# TODO: ratio
+# TODO: adjust-multiplier
+
 module Dataset
   class Calculation
 
@@ -328,34 +332,37 @@ module Dataset
     end
   end
 
-  # 
-  #   module Changes
-  #     module Percent
-  #     end
-  #   end
-  # 
-  #   MonthlyDeltas = Deltas.new
-  # 
-  #   class Baseline < Base
-  #     takes_param
-  # 
-  #     def options(target)
-  #       target.chrons
-  #     end
-  # 
-  #     def recipe
-  #       { :command => 'baseline', :basecol => target.chroncol }
-  #     end
-  #   end
-  # end
-end
+  class MergeCalculation < Calculation
+    label "merge"
+    terminal
 
-# p Dataset::Calculation.find('')
-# p Dataset::Calculation.find('chg')
-# p Dataset::Calculation.find('foo')
-# p Dataset::Calculation.find('chg-pct')
-# p Dataset::Calculation.find('chg-pct-mon')
-# p Dataset::Calculation.find('chg-abs')
-# p Dataset::Calculation.find('bogus')
-# p Dataset::Calculation.find('baseline')
-# p Dataset::Calculation.find('baseline-1995')
+    def target2(table)
+      @target2 = table
+    end
+
+    def ready?
+      @target && @target2 && (@target.chron == @target2.chron) && @target.dimension_columns.empty? && @target2.dimension_columns.empty?
+    end
+
+    def recipe
+      if ready?
+        [{
+          :command => 'merge.rb',
+          :args => {
+            :input => '1',
+            :group1 => @target.columns.find_all {|col| !col.measure?}.map(&:colnum).join(','),
+            :group2 => @target2.columns.find_all {|col| !col.measure?}.map(&:colnum).join(','),
+            :pick2 => @target2.measure_columns.map(&:colnum).join(',')
+          }
+        }]
+      end
+    end
+
+    def resultspec
+      columns = @target.columns.dup
+      columns.concat(@target2.measure_columns)
+      Table.new(:columns => columns.map(&:metadata))
+      # Table.new(:columns => columns)
+    end
+  end
+end
