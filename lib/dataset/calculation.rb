@@ -392,8 +392,9 @@ module Dataset
           :command => 'rollup.rb',
           :args => {
             :level => 'month',
+            :formula => 'last',
             :chroncol => @target.chron_column.colnum,
-            :measurecol => @target.measure_column.colnum
+            :datacol => @target.measure_column.colnum
           }
         ]
       end
