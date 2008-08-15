@@ -365,4 +365,45 @@ module Dataset
       # Table.new(:columns => columns)
     end
   end
+
+  class RollupCalculation < Calculation
+    label "rollup"
+  end
+
+  class MonthlyRollupCalculation < RollupCalculation
+    label "mon"
+  end
+
+  class EOMRollupCalculation < MonthlyRollupCalculation
+    label "last"
+    terminal
+
+    def ready?
+      @target &&
+      (@target.chron == Chron::YYMMDD) &&
+      @target.dimension_columns.empty? &&
+      @target.other_columns.empty? &&
+      (@target.measure_columns.size == 1)
+    end
+
+    def recipe
+      if ready?
+        [
+          :command => 'rollup.rb',
+          :args => {
+            :level => 'month',
+            :chroncol => @target.chron_column.colnum,
+            :measurecol => @target.measure_column.colnum
+          }
+        ]
+      end
+    end
+
+    def resultspec
+      Table.new(:columns => [
+        {:chron => 'YYYYMM'},
+        @target.measure_column.metadata
+        ])
+    end
+  end
 end

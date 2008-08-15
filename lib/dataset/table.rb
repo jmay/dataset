@@ -327,7 +327,7 @@ module Dataset
       elsif @metadata[:number] && !params[:skip_number_formatting]
         value.blank? ? nil : units.new(value, :verbatim => true)
       else
-        value
+        value.blank? ? nil : value
       end
     end
 

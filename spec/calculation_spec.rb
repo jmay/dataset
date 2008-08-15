@@ -416,3 +416,46 @@ describe "simple table merge" do
     spec.columns[2].name.should == 'Backlog'
   end
 end
+
+describe "rollup calculation" do
+  it "should take a chron cycle and how-to-rollup algorithm" do
+    Dataset::Calculation.find("rollup").should_not be_terminal
+    Dataset::Calculation.find("rollup-mon").should_not be_terminal
+    Dataset::Calculation.find("rollup-mon-last").should be_terminal
+  end
+end
+
+describe "monthly rollup of daily data based on end-of-month value" do
+  it "should require a target with necessary signature" do
+    calc = Dataset::Calculation.find("rollup-mon-last")
+
+    oktable = Dataset::Table.new(:columns => [{:chron => 'YYMMDD'}, {:number => 'Dollars'}])
+
+    badtables = [
+      Dataset::Table.new(:columns => []),
+      Dataset::Table.new(:columns => [{:chron => 'YYMMDD'}, {:name => 'Category'}, {:number => 'Dollars'}]),
+      Dataset::Table.new(:columns => [{:chron => 'YYMMDD'}, {:number => 'Dollars'}, {:number => 'Dollars'}]),
+      Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}]),
+      Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    ]
+
+    calc.target(oktable)
+    calc.should be_ready
+
+    badtables.each {|tbl| calc.target(tbl); calc.should_not be_ready}
+  end
+
+  it "should produce rollup recipe and spec" do
+    calc = Dataset::Calculation.find("rollup-mon-last")
+    table = Dataset::Table.new(:columns => [{:chron => 'YYMMDD'}, {:number => 'Dollars'}])
+    calc.target(table)
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'rollup.rb', :args => { :level => 'month', :chroncol => 0, :measurecol => 1 }}]
+    spec = calc.resultspec
+    spec.columns.size.should == 2
+    spec.columns[0].chron.should == Dataset::Chron::YYYYMM
+    spec.columns[1].name == table.columns[1].name
+    spec.columns[1].units == table.columns[1].units
+  end
+end
