@@ -876,6 +876,14 @@ module Dataset
       def mon
         Date::ABBR_MONTHNAMES[@internal.month]
       end
+
+      def month
+        YYYYMM.new(:year => @internal.year, :month => @internal.month)
+      end
+
+      def year
+        YYYY.new(@internal.year)
+      end
     end # class YYMMDD
   end # module Chron
 end # module Dataset

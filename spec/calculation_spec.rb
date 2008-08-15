@@ -451,7 +451,7 @@ describe "monthly rollup of daily data based on end-of-month value" do
     calc.target(table)
     calc.should be_ready
 
-    calc.recipe.should == [{:command => 'rollup.rb', :args => { :level => 'month', :formula => 'last', :chroncol => 0, :datacol => 1 }}]
+    calc.recipe.should == [{:command => 'rollup.rb', :args => { :chron => 'YYMMDD', :level => 'month', :formula => 'last', :chroncol => 0, :datacol => 1 }}]
     spec = calc.resultspec
     spec.columns.size.should == 2
     spec.columns[0].chron.should == Dataset::Chron::YYYYMM

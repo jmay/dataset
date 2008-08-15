@@ -56,6 +56,11 @@ describe "dates (days, not months or years)" do
     ymd.next_interval_after(365*10).should == 365*25
   end
 
+  it "should be able to pull month & year" do
+    d = Dataset::Chron::YYMMDD.new("2008-08-24")
+    d.month.should == Dataset::Chron::YYYYMM.new("08/2008")
+    d.year.should == Dataset::Chron::YYYY.new('2008')
+  end
   # it "should support prev & next" do
   #   now = Dataset::Chron::YYMMDD.new('2008-04-15')
   #   now.next.to_s.should == '2008-04-16'
