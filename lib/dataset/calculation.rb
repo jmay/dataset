@@ -127,7 +127,7 @@ module Dataset
       Table.new(:columns => [
         { :chron => @target.chron_str },
         { :number => 'Percent',
-          :label => "Annual change in #{@target.measure_column.label}" }
+          :label => "Annual change in #{@target.measure_column.name}" }
         ])
     end
   end
@@ -141,7 +141,7 @@ module Dataset
       Table.new(:columns => [
         { :chron => @target.chron_str },
         { :number => 'Percent',
-          :label => "Quarterly change in #{@target.measure_column.label}" }
+          :label => "Quarterly change in #{@target.measure_column.name}" }
         ])
     end
   end
@@ -155,7 +155,7 @@ module Dataset
       Table.new(:columns => [
         { :chron => @target.chron_str },
         { :number => 'Percent',
-          :label => "Monthly change in #{@target.measure_column.label}" }
+          :label => "Monthly change in #{@target.measure_column.name}" }
         ])
     end
   end

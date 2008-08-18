@@ -43,7 +43,7 @@ describe "monthly deltas calculation" do
     table = Dataset::Table.new(:columns => [
       {:chron => 'YYYYMM'},
       {:number => 'Count',
-        :label => 'Sales'}
+        :name => 'Sales'}
        ])
     @calc.target(table)
     # table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
