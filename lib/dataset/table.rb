@@ -59,7 +59,7 @@ module Dataset
     # process file as stream (if block provided) or batch
     # yield each row as an array of converted types: Chron, Number or the untouched string
     def read(datafile, args = {}, &block)
-      if args[:tmin] || args[:tmax] || args[:reverse]
+      if args[:tmin] || args[:tmax] #|| args[:reverse]
         read_with_chron_range(datafile, args, &block)
       else
         read_with_limit_and_offset(datafile, args, &block)
@@ -70,18 +70,18 @@ module Dataset
       raise "No chron column in this table" unless chron?
       raise "Chron mismatch - expected #{chron}" if (args[:tmin] && args[:tmin].class != chron) || (args[:tmax] && args[:tmax].class != chron)
 
-      if args[:reverse]
-        if args[:limit]
-          tmin = chron_column.metadata[:max] - (args[:offset] || 0) - args[:limit] + 1
-          tmax = tmin + args[:limit] - 1
-        else
-          tmin = chron_column.metadata[:min]
-          tmax = chron_column.metadata[:max]
-        end
-
-        args[:tmin] = chron.new(:index => tmin)
-        args[:tmax] = chron.new(:index => tmax)
-      end
+      # if args[:reverse]
+      #   if args[:limit]
+      #     tmin = chron_column.metadata[:max] - (args[:offset] || 0) - args[:limit] + 1
+      #     tmax = tmin + args[:limit] - 1
+      #   else
+      #     tmin = chron_column.metadata[:min]
+      #     tmax = chron_column.metadata[:max]
+      #   end
+      # 
+      #   args[:tmin] = chron.new(:index => tmin)
+      #   args[:tmax] = chron.new(:index => tmax)
+      # end
 
       @rows = []
       File.open(datafile).each do |line|
@@ -91,23 +91,24 @@ module Dataset
         next if args[:tmin] && row[chron_column.colnum] < args[:tmin]
         next if args[:tmax] && row[chron_column.colnum] > args[:tmax]
 
-        if block && !args[:reverse]
+        if block #&& !args[:reverse]
           yield row
         else
           @rows << row
         end
       end
 
-      if args[:reverse]
-        @rows.reverse!
-        if block
-          @rows.each {|row| yield row}
-        else
-          @rows
-        end
-      else
-        @rows
-      end
+      @rows
+      # if args[:reverse]
+      #   @rows.reverse!
+      #   if block
+      #     @rows.each {|row| yield row}
+      #   else
+      #     @rows
+      #   end
+      # else
+      #   @rows
+      # end
     end
 
     def read_with_limit_and_offset(datafile, args, &block)
@@ -115,7 +116,14 @@ module Dataset
       offset = args[:offset] || 0
       @rows = []
 
-      File.open(datafile).each_with_index do |line, i|
+      input = nil
+      if args[:reverse]
+        input = IO.popen("cat #{datafile} | sort -t\\t -k#{chron_column.colnum+1}nr")
+      else
+        input = File.open(datafile)
+      end
+
+      input.each_with_index do |line, i|
         break if limit && i >= offset+limit
         next if i < offset
         fields = line.chomp.split("\t", -1) # the -1 means don't drop trailing empty fields

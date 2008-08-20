@@ -436,4 +436,10 @@ describe "reading table from file" do
     rows[-1][1].should be_nil
     rows[-2][1].should be_nil
   end
+
+  it "should support reversing the file" do
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}, {:number => 'Units'}])
+    rows = table.read(File.dirname(__FILE__) + "/testdata/reverseme.tsv", :reverse => true)
+    rows.map{|row| row.first.index}.should == [2008, 2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000]
+  end
 end
