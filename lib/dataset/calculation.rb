@@ -243,6 +243,7 @@ module Dataset
           :args => {
             :chroncol => @target.chron_column.colnum,
             :baseline => @target.chron.new(@baseline_chron_str).index,
+            :datacols => @target.measure_columns.map {|col| col.colnum}.join(',')
           }
         }]
       end

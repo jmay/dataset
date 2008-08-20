@@ -247,7 +247,7 @@ describe "baseline calculation" do
     table = Dataset::Table.new(:columns => [{:chron => 'YYYY', :min => 1980, :max => 2007}, {:number => 'Dollars'}])
     calc.target(table)
 
-    calc.recipe.should == [{:command => 'baseline.rb', :args => { :chroncol => 0, :baseline => 1995 }}]
+    calc.recipe.should == [{:command => 'baseline.rb', :args => { :chroncol => 0, :baseline => 1995, :datacols => '1' }}]
 
     spec = calc.resultspec
     spec.columns.size.should == 2
