@@ -215,10 +215,28 @@ describe "baseline calculation" do
   it "should barf when target has incompatible chron" do
     calc = Dataset::Calculation.find("baseline-1995")
 
-    calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    table_wrong_chron = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    table_no_measure = Dataset::Table.new(:columns => [{:chron => 'YYYY'}])
+    table_no_chron = Dataset::Table.new(:columns => [{:name => 'State'}, {:number => 'People'}])
+    table_extra_column = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => 'Department'}, {:number => 'Units'}])
+    table_no_minmax = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}])
+    table_ok = Dataset::Table.new(:columns => [{:chron => 'YYYY', :min => 1980, :max => 2007}, {:number => 'Units'}])
+    table_2_measures = Dataset::Table.new(:columns => [{:chron => 'YYYY', :min => 1980, :max => 2007}, {:number => 'Units'}, {:number => 'Dollars'}])
 
+    calc.target(table_wrong_chron)
     calc.should_not be_ready
+    calc.target(table_no_measure)
+    calc.should_not be_ready
+    calc.target(table_no_chron)
+    calc.should_not be_ready
+    calc.target(table_extra_column)
+    calc.should_not be_ready
+    calc.target(table_no_minmax)
+    calc.should_not be_ready
+    calc.target(table_ok)
+    calc.should be_ready
+    calc.target(table_2_measures)
+    calc.should be_ready
   end
 
   it "should work when target has the right chron" do
@@ -226,13 +244,17 @@ describe "baseline calculation" do
     calc.should_not be_ready
     calc.should be_terminal
 
-    calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYY)
-    table.stubs(:chrons).returns([ Dataset::Chron::YYYY.new('1995') ])
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYY', :min => 1980, :max => 2007}, {:number => 'Dollars'}])
+    calc.target(table)
 
-    calc.should be_ready
-    calc.recipe.should == [{:command => 'baseline', :args => { :chroncol => 0, :basechron => 1995 }}]
+    calc.recipe.should == [{:command => 'baseline.rb', :args => { :chroncol => 0, :baseline => 1995 }}]
 
+    spec = calc.resultspec
+    spec.columns.size.should == 2
+    spec.columns[0].should be_chron
+    spec.chron.should == table.chron
+    spec.columns[1].units.should == Dataset::Number::Index
+    spec.columns[1].name.should == 'Baselined Dollars'
     # TODO: validate calc.tablespec
   end
 end

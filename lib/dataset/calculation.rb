@@ -205,11 +205,9 @@ module Dataset
     end
   end
 
-  class Baseline < Calculation
+  class BaselineCalc < Calculation
     label 'baseline'
     terminal
-
-    attr_reader :baseline_chron
 
     def self.find(descriptor)
       if descriptor == ""
@@ -219,26 +217,50 @@ module Dataset
       end
     end
 
-    def initialize(baseline_chron)
-      @baseline_chron = baseline_chron
+    def initialize(chron_str)
+      @baseline_chron_str = chron_str
     end
 
     def ready?
-      @target && !@target.chron.new(baseline_chron).nil? rescue false
+      # does it have a chron, no dimensions, and at least one measure?
+      return false unless @target && @target.chron && @target.measure_columns.any? && @target.other_columns.empty?
+
+      # does the provided baseline chron match the chron type of the target?
+      baseline_chron = @target.chron.new(@baseline_chron_str) rescue nil
+      return false if baseline_chron.nil?
+
+      # does it have min & max fields for checking if the baseline chron is in-range?
+      return false unless @target.chron_column.min && @target.chron_column.max
+
+      # is the baseline in-range?
+      (baseline_chron >= @target.chron_column.min) && (baseline_chron <= @target.chron_column.max)
     end
 
     def recipe
       if ready?
         [{
-          :command => 'baseline',
+          :command => 'baseline.rb',
           :args => {
-            :chroncol => 0,
-            :basechron => @target.chron.new(baseline_chron).index,
+            :chroncol => @target.chron_column.colnum,
+            :baseline => @target.chron.new(@baseline_chron_str).index,
           }
         }]
       end
     end
 
+    def resultspec
+      if ready?
+        columns = @target.columns.map do |col|
+          if col.measure?
+            TableColumn.new({ :metadata => { :number => 'Index', :label => "Baselined #{col.name || col.units.label}"}})
+          else
+            col
+          end
+        end
+
+        Table.new(:columns => columns.map(&:metadata))
+      end
+    end
     # TODO: def tablespec
   end
 

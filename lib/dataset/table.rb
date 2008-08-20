@@ -3,7 +3,7 @@
 
 require "facets/hash"
 require "facets/blank"
-# require "facets"
+require "facets/enumerable/none" # for Array#none?
 
 module Dataset
   class Table
