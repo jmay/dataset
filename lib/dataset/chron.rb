@@ -296,7 +296,7 @@ module Dataset
     #   Jun-05, JUN 05
     class YYYYMM < Base
       @interval = 1.0/12
-      @intervals = [1.0/12, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0]
+      @intervals = [1.0/12, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 100.0]
       @offset = 12
       @label = "Year & Month"
       @operations = [
