@@ -155,7 +155,12 @@ describe "dollars" do
     Dataset::Number::Dollars.new("+14.3").value.should == 14.3
     Dataset::Number::Dollars.new("-91").value.should == -91
   end
-  
+
+  it "should ignore dollar signs" do
+    Dataset::Number::Dollars.new("$43.50").value.should == 43.50
+    Dataset::Number::Dollars.new("$ 100,000").value.should == 100_000
+  end
+
   it "should display with two decimals and dollar sign" do
     Dataset::Number::Dollars.new("4.3").to_s.should == "$4.30"
     Dataset::Number::Dollars.new("+1234.3").to_s.should == "$1,234.30"

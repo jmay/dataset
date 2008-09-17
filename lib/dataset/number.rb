@@ -164,7 +164,11 @@ module Dataset
 
       def initialize(num, options = {})
         options[:format] = "%.2f"
-        super(num, options)
+        super(num.is_a?(String) ? Dollars.convert(num) : num, options)
+      end
+
+      def Dollars.convert(str)
+        str.gsub(/\$\s*/, '')
       end
 
       def to_s
