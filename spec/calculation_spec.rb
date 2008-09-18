@@ -263,12 +263,20 @@ end
 describe "extract calculation" do
   it "should require extra parameters" do
     Dataset::Calculation.find("extract").should_not be_terminal
+
     Dataset::Calculation.find("extract-State").should be_terminal
     Dataset::Calculation.find("extract-State-California").should be_terminal
+
+    Dataset::Calculation.find("extract-1").should be_terminal
+    Dataset::Calculation.find("extract-1-California").should be_terminal
   end
 
   it "should require a target" do
     calc = Dataset::Calculation.find("extract-State-California")
+    calc.should be_terminal
+    calc.should_not be_ready
+
+    calc = Dataset::Calculation.find("extract-1-California")
     calc.should be_terminal
     calc.should_not be_ready
   end
@@ -289,6 +297,34 @@ describe "extract calculation" do
     calc.should_not be_ready
   end
 
+  it "should be OK when referring to dimension column by colnum" do
+    calc2 = Dataset::Calculation.find("extract-0-California")
+    calc2.target(table = Dataset::Table.new(:columns => [:values => ['Oregon', 'Arizona']]))
+    calc2.should be_ready
+  end
+
+  it "should insist on a dimension column when descriptor refers by colnum" do
+    calc = Dataset::Calculation.find("extract-0-California")
+    calc.target(table = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:values => ['Alabama', 'Alaska']}]))
+    calc.should_not be_ready
+
+    calc = Dataset::Calculation.find("extract-1-California")
+    calc.target(table = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:values => ['Alabama', 'Alaska']}]))
+    calc.should be_ready
+
+    calc = Dataset::Calculation.find("extract-1-California")
+    calc.target(table = Dataset::Table.new(:columns => [{:values => ['Alabama', 'Alaska']}, {:number => 'Units'}]))
+    calc.should_not be_ready
+  end
+
+  it "should barf when dimension value is missing" do
+    calc = Dataset::Calculation.find("extract-State")
+    calc.target(table = mock)
+    table.stubs(:dimensions).returns([ dim = mock ])
+    dim.stubs(:name).returns('State')
+    calc.should_not be_ready
+  end
+
   it "should barf when dimension value is missing" do
     calc = Dataset::Calculation.find("extract-State")
     calc.target(table = mock)
@@ -301,8 +337,6 @@ describe "extract calculation" do
     calc = Dataset::Calculation.find("extract-State-California")
     table = Dataset::Table.new(:columns => [{:name => 'State', :values => ['California', 'Arizona']}, {:number => 'Units'}])
     calc.target(table)
-    # table.stubs(:dimensions).returns([dim = mock])
-    # dim.stubs(:name).returns('State')
     calc.should be_ready
 
     calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 0, :value => 'California', :invert => 0 }}]
@@ -311,9 +345,20 @@ describe "extract calculation" do
     spec = calc.resultspec # test to make sure that calc#resultspec is not destructive
     spec.columns.size.should == 1
     spec.columns.first.units.should == Dataset::Number::Count
-    # (0..spec.columns.size-1).each do |n|
-    #   spec.columns[n].metadata.should == table.columns[n].metadata
-    # end
+  end
+
+  it "should work when target has a dimension in the right place" do
+    calc = Dataset::Calculation.find("extract-1-California")
+    table = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:values => ['California', 'Arizona']}, {:number => 'Units'}])
+    calc.target(table)
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 1, :value => 'California', :invert => 0 }}]
+
+    spec = calc.resultspec
+    spec = calc.resultspec # test to make sure that calc#resultspec is not destructive
+    spec.columns.size.should == 2
+    spec.measure_column.units.should == Dataset::Number::Count
   end
 
   it "should allow spaces and other characters in either the column name or value" do

@@ -286,7 +286,15 @@ module Dataset
     end
 
     def ready?
-      @target && dimension_name && dimension_value && !@target.dimension_column(dimension_name).nil?
+      @target && dimension_name && dimension_value && dimension_colnum && @target.columns[dimension_colnum].dimension?
+    end
+
+    def dimension_colnum
+      if dimension_name =~ /^\d+$/
+        dimension_name.to_i 
+      else
+        (column = @target.dimension_column(dimension_name)) && column.colnum
+      end
     end
 
     def recipe
@@ -294,7 +302,7 @@ module Dataset
         [{
           :command => 'select_where.pl',
           :args => {
-            :column => @target.dimension_column(dimension_name).colnum,
+            :column => dimension_colnum,
             :value => @dimension_value,
             :invert => @invert ? 1 : 0
           },
@@ -305,7 +313,7 @@ module Dataset
     def resultspec
       if ready?
         columns = @target.columns.dup # separate copy of columns metadata for the new spec, which will be altered
-        columns.delete_at(@target.dimension_column(dimension_name).colnum)
+        columns.delete_at(dimension_colnum)
         Table.new(:columns => columns.map(&:metadata))
       end
     end
