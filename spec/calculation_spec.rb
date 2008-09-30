@@ -418,7 +418,7 @@ describe "measure-column extraction calculation" do
     calc.target(table = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Unspecified Measure'}]))
     calc.should be_ready
 
-    calc.recipe.should == [{:command => 'columns.pl', :args => { :columns => "0,1" }}]
+    calc.recipe.should == [{:command => 'columns.pl', :args => { :columns => "0,1" }}, {:command => 'filter_out.rb', :args => { :column => 1, :match => ''}}]
     spec = calc.resultspec
     spec.columns.size.should == 2
     spec.columns[0].metadata[:chron].should == 'YYYYMM'

@@ -352,6 +352,13 @@ module Dataset
           :args => {
             :columns => columns.map(&:colnum).join(",")
           },
+        },
+        {
+          :command => 'filter_out.rb',
+          :args => {
+            :column => columns.size - 1,  # the last column in the output must have a value
+            :match => ''
+          }
         }]
       end
     end
