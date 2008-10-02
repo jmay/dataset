@@ -117,14 +117,10 @@ describe 'percentages' do
   end
 
   it "should handle string conversions" do
-    Dataset::Number::Percentage.new("4.3").value.should == 0.043
-    Dataset::Number::Percentage.new("4.3%").value.should == 0.043
-    Dataset::Number::Percentage.new("+14.3%").value.to_s.should == "0.143"  # float == issue
-    Dataset::Number::Percentage.new("-91%").value.should == -0.91
-  end
-
-  it "should give value as N/100" do
-    Dataset::Number::Percentage.new(4.3).value.should == 0.043
+    Dataset::Number::Percentage.new("4.3").value.should == 4.3
+    Dataset::Number::Percentage.new("4.3%").value.should == 4.3
+    Dataset::Number::Percentage.new("+14.3%").value.to_s.should == "14.3"  # float == issue
+    Dataset::Number::Percentage.new("-91%").value.should == -91.0
   end
 
   it "should by default display with one decimal" do
@@ -135,11 +131,6 @@ describe 'percentages' do
 
   it "should support formatting control" do
     Dataset::Number::Percentage.new(12.8, :format => "%0.2f%%").to_s.should == "12.80%"
-  end
-
-  it "should load verbatim" do
-    Dataset::Number::Percentage.new("0.128", :verbatim => true).to_s.should == "12.8%"
-    Dataset::Number::Percentage.new(0.128, :verbatim => true).to_s.should == "12.8%"
   end
 end
 

@@ -426,6 +426,7 @@ describe "reading table from file" do
     rows = table.read(File.dirname(__FILE__) + "/testdata/percentages.tsv")
     rows.each {|row| row.size.should == 3}
     rows.first.last.to_s.should == '12.3%'
+    rows[1].last.to_s.should == '0.2%'
   end
 
   it "should handle missing measure values" do
