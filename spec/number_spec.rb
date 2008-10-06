@@ -5,6 +5,10 @@ require "dataset/number"
 describe Dataset::Number do
   it "should know all the available types" do
     Dataset::Number.all.should == ["Dollars", "Index", "People", "Percent", "Units", "Unspecified Measure"]
+
+    # make sure that custom subtypes don't pollute the "all" list
+    Dataset::Number::find('Percent', :decimals => 4).should_not be_nil
+    Dataset::Number.all.should == ["Dollars", "Index", "People", "Percent", "Units", "Unspecified Measure"]
   end
 
   it "should know names" do
