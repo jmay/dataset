@@ -221,6 +221,11 @@ describe "index values" do
   it "should support format override, not put commas after the decimal" do
     Dataset::Number::Index.new("12345.6789", :format => '%.4f').to_s.should == "12,345.6789"
   end
+
+  it "should support decimals" do
+    Dataset::Number::Index.new("12345.6789", :decimals => 1).to_s.should == "12,345.7"
+    Dataset::Number.find('Index', :decimals => 1).new("12345.6789").to_s.should == "12,345.7"
+  end
 end
 
 describe "population figures" do

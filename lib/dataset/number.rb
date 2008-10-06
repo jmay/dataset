@@ -69,7 +69,13 @@ module Dataset
       end
 
       def fmt
-        @options[:format] || self.class.format
+        if @options[:format]
+          @options[:format]
+        elsif @options[:decimals]
+          "%.#{@options[:decimals]}f"
+        else
+          self.class.format
+        end
       end
 
       def to_s
