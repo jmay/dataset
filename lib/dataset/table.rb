@@ -305,12 +305,16 @@ module Dataset
       !metadata[:number].nil?
     end
 
+    def measure_options
+      Hash[*(metadata.select {|k,v| [:decimals].include?(k)}).flatten]
+    end
+
     def number
-      Number.find(@metadata[:number])
+      Number.find(@metadata[:number], measure_options)
     end
 
     def units
-      Number.find(@metadata[:units] || @metadata[:number])
+      Number.find(@metadata[:units] || @metadata[:number], measure_options)
     end
 
     def measure
@@ -333,7 +337,7 @@ module Dataset
       if @metadata[:chron]
         chron.new(:index => value.to_i)
       elsif @metadata[:number] && !params[:skip_number_formatting]
-        value.blank? ? nil : units.new(value, :verbatim => true)
+        value.blank? ? nil : units.new(value, @metadata)
       else
         value.blank? ? nil : value
       end

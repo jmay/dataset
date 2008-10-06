@@ -79,8 +79,8 @@ describe "role extraction" do
     table.should be_nsf
   end
 
-  it "should be incomplete if chron is not declared" do
-    table = Dataset::Table.new(:columns => [{:name => 'Year'}, {:number => 'Unspecified Measure'}])
+  it "should be fine if chron is not declared" do
+    table = Dataset::Table.new(:columns => [{:name => 'NotaYear'}, {:number => 'Unspecified Measure'}])
     table.should_not be_nsf
   end
 
@@ -427,6 +427,10 @@ describe "reading table from file" do
     rows.each {|row| row.size.should == 3}
     rows.first.last.to_s.should == '12.3%'
     rows[1].last.to_s.should == '0.2%'
+
+    table.columns.last.metadata[:decimals] = 3
+    rows[1].last.to_s.should == '0.234%'
+    table.measure_column.units.label.should == 'Percent'
   end
 
   it "should handle missing measure values" do

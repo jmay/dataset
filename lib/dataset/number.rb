@@ -13,8 +13,8 @@ module Dataset
       self.constants.find_all {|c| self.const_get(c).instance_variable_defined?(:@label)}.map {|c| self.const_get(c).label}.sort
     end
 
-    def self.find(label)
-      case label
+    def self.find(label, options = {})
+      numklass = case label
       when nil
         nil
       when /^%/
@@ -31,18 +31,28 @@ module Dataset
         classname = self.constants.find {|c| self.const_get(c).respond_to?(:label) && self.const_get(c).label == label}
         classname ? self.const_get(classname) : nil
       end
+
+      if options.any?
+        numklass = Class.new(numklass)
+        numklass.label = label
+        numklass.options = options
+      end
+
+      numklass
     end
 
     class Base
+      attr_reader :value
+
       class << self
-        attr_accessor :label, :format
+        attr_accessor :label, :format, :options
         # TODO: I cloned this from unit.rb, what's it for?  for measures like Percent that don't get multipliers?
         def generic?; true; end
       end
 
-      def initialize(num, options = {})
+      def initialize(num, options = nil)
         @value = num
-        @options = options
+        @options = options || self.class.options || {}
       end
 
       def method_missing(meth, *args, &block)
@@ -50,12 +60,20 @@ module Dataset
         value.send meth, *args, &block
       end
 
-      def value
-        @value * (@options[:multiplier] || 1)
+      def multiplier
+        @options[:multiplier] ||= 1
+      end
+
+      def adjusted_value
+        @value * (multiplier.is_a?(Symbol) ? 1.send(multiplier) : multiplier)
+      end
+
+      def fmt
+        @options[:format] || self.class.format
       end
 
       def to_s
-        sprintf(@options[:format], @value).commafy
+        sprintf(fmt, @value).commafy
       end
 
       # TODO: this is for backwards compability with Unit, which has a format-with-hints method;
@@ -94,8 +112,8 @@ module Dataset
       @label = 'Unspecified Measure'
       @format = "%.2f"  # default is two decimals
 
-      def initialize(num, options = {})
-        options[:format] ||= self.class.format
+      def initialize(num, options = nil)
+        # options[:format] ||= self.class.format
         super(num.is_a?(String) ? Quantity.convert(num) : num, options)
       end
 
@@ -109,7 +127,7 @@ module Dataset
     # a non-negative percentage
     class Percentage < Base
       @label = 'Percent'
-      @format = "%0.1f%%" # default is one decimal
+      # @format = "%0.1f%%" # default is one decimal
 
       def self.generic?; false; end
 
@@ -122,6 +140,14 @@ module Dataset
           # options[:multiplier] = 0.01
           super(num.is_a?(String) ? Percentage.convert(num) : num, options)
         # end
+      end
+
+      def decimals
+        @options[:decimals] || (self.class.options && self.class.options[:decimals]) || 1
+      end
+
+      def fmt
+        "%.#{decimals}f%%"
       end
 
       def Percentage.convert(str)
@@ -162,8 +188,7 @@ module Dataset
       @label = 'Dollars'
       def self.generic?; false; end
 
-      def initialize(num, options = {})
-        options[:format] = "%.2f"
+      def initialize(num, options = nil)
         super(num.is_a?(String) ? Dollars.convert(num) : num, options)
       end
 
@@ -171,9 +196,13 @@ module Dataset
         str.gsub(/\$\s*/, '')
       end
 
+      def decimals
+        @options[:decimals] ||= (multiplier == 1 ? 2 : 0)
+      end
+
       def to_s
         sign = (value < 0.0) ? "-" : ""
-        fmt = "#{sign}$%.2f"
+        fmt = "#{sign}#{'$' if multiplier == 1}%.#{decimals}f"
         sprintf(fmt, value.abs).gsub(/(\d)(?=\d{3}+(\.\d*)?[^0-9]*$)/, '\1,')
       end
     end

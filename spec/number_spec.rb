@@ -49,7 +49,12 @@ describe "regular counts" do
   end
 
   it "should display with decimals if multiplier > 1" do
-    Dataset::Number::Count.new("47.9", :multiplier => 1000).to_s.should == "47.9"
+    n = Dataset::Number::Count.new("47.9", :multiplier => 1000)
+    n.to_s.should == "47.9"
+    n.adjusted_value.should == 47_900
+    n = Dataset::Number::Count.new("47.9", :multiplier => :thousand)
+    n.to_s.should == "47.9"
+    n.adjusted_value.should == 47_900
   end
 
   it "should raise error on unacceptable input" do
@@ -130,7 +135,11 @@ describe 'percentages' do
   end
 
   it "should support formatting control" do
-    Dataset::Number::Percentage.new(12.8, :format => "%0.2f%%").to_s.should == "12.80%"
+    Dataset::Number::Percentage.new(12.8, :decimals => 2).to_s.should == "12.80%"
+
+    k = Dataset::Number.find('Percent', :decimals => 2)
+    k.new(12.8).to_s.should == '12.80%'
+    k.label.should == 'Percent'
   end
 end
 
@@ -156,12 +165,29 @@ describe "dollars" do
     Dataset::Number::Dollars.new("4.3").to_s.should == "$4.30"
     Dataset::Number::Dollars.new("+1234.3").to_s.should == "$1,234.30"
     Dataset::Number::Dollars.new("-91.6").to_s.should == "-$91.60"
+    Dataset::Number::Dollars.new('123,000').to_s.should == '$123,000.00'
+  end
+
+  it "should support format control" do
+    Dataset::Number::Dollars.new('123,000').to_s.should == '$123,000.00'
+    Dataset::Number::Dollars.new('123,000', :decimals => 0).to_s.should == '$123,000'
+    Dataset::Number::Dollars.new('123,000', :decimals => 0).class.label.should == 'Dollars'
+  end
+
+  it "should drop the dollar sign and show zero decimals when there's a multiplier" do
+    Dataset::Number::Dollars.new(123, :multiplier => 1000).to_s.should == '123'
+    Dataset::Number::Dollars.new(123, :multiplier => 1000, :decimals => 2).to_s.should == '123.00'
   end
 
   it "should reject bad input" do
     lambda {Dataset::Number::Dollars.new("n/a")}.should raise_error(RuntimeError, "Invalid number value 'n/a'")
     lambda {Dataset::Number::Dollars.new("ND")}.should raise_error(RuntimeError, "Invalid number value 'ND'")
     lambda {Dataset::Number::Dollars.new("")}.should raise_error(RuntimeError, "Invalid number value ''")
+  end
+
+  it "should carry the formatting info in the class" do
+    klass = Dataset::Number.find('Dollars', :decimals => 0)
+    klass.new('123').to_s.should == '$123'
   end
 end
 
