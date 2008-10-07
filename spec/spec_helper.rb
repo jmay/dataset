@@ -28,3 +28,7 @@ end
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + "/../lib")
 require "dataset"
+
+def testdata(name)
+  File.open(File.dirname(__FILE__) + "/testdata/#{name}").read
+end

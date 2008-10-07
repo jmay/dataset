@@ -14,3 +14,5 @@ require "dataset/number"
 require "dataset/table"
 require "dataset/calculation"
 require "dataset/recipe"
+
+require "dataset/dissect"
