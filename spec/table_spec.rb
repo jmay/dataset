@@ -34,6 +34,12 @@ describe "merging updates" do
     t2 = Dataset::Table.new(:columns => [{:label => 'Bar'}, {:label => 'Baz'}])
     lambda {t1.merge(t2)}.should raise_error(RuntimeError)
   end
+
+  it "should merge constraints" do
+    t1 = Dataset::Table.new
+    t2 = Dataset::Table.new(:constraints => {'foo' => 'Bar'})
+    t1.merge(t2).constraints.should == t2.constraints
+  end
 end
 
 describe "role extraction" do

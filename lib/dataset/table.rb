@@ -53,6 +53,9 @@ module Dataset
           @columns[i].merge(col)
         end
       end
+
+      constraints.merge!(table2.constraints)
+
       self
     end
 
