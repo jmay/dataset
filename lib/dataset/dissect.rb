@@ -22,15 +22,15 @@ module Dataset
 
       if chron_columns.any?
         col = chron_columns.first
-        recipe << { :command => 'chronify.rb', :args => {:column => "#{col.colnum}:#{col.role.name.split(/::/).last}"}}
+        recipe << { 'command' => 'chronify.rb', 'args' => {:column => "#{col.colnum}:#{col.role.name.split(/::/).last}"}}
       end
 
       measure_columns.each do |col|
-        recipe << { :command => 'measures.rb', :args => {:column => "#{col.colnum}"}}
+        recipe << { 'command' => 'measures.rb', 'args' => {:column => "#{col.colnum}"}}
       end
 
       dimension_columns.each do |col|
-        recipe << { :command => 'dimension.rb', :args => {:columns => "#{col.colnum}"}}
+        recipe << { 'command' => 'dimension.rb', 'args' => {:columns => "#{col.colnum}"}}
       end
 
       recipe
