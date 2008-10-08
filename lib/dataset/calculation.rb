@@ -314,7 +314,10 @@ module Dataset
       if ready?
         columns = @target.columns.dup # separate copy of columns metadata for the new spec, which will be altered
         columns.delete_at(dimension_colnum)
-        Table.new(:columns => columns.map(&:metadata))
+        Table.new(
+          :columns => columns.map(&:metadata),
+          :constraints => @target.constraints.merge({@target.columns[dimension_colnum].name => dimension_value})
+        )
       end
     end
   end

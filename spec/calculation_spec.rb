@@ -345,6 +345,7 @@ describe "extract calculation" do
     spec = calc.resultspec # test to make sure that calc#resultspec is not destructive
     spec.columns.size.should == 1
     spec.columns.first.units.should == Dataset::Number::Count
+    spec.constraints.should == {'State' => 'California'}
   end
 
   it "should work when target has a dimension in the right place" do
@@ -359,6 +360,7 @@ describe "extract calculation" do
     spec = calc.resultspec # test to make sure that calc#resultspec is not destructive
     spec.columns.size.should == 2
     spec.measure_column.units.should == Dataset::Number::Count
+    spec.constraints.should == {nil => 'California'}
   end
 
   it "should allow spaces and other characters in either the column name or value" do
@@ -374,6 +376,7 @@ describe "extract calculation" do
     spec = calc.resultspec
     spec.columns.size.should == 2
     spec.columns.last.name.should == 'school name'
+    spec.constraints.should == {'school district' => 'Los Altos Elementary'}
   end
 end
 
