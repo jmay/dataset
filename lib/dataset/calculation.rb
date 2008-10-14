@@ -46,14 +46,19 @@ module Dataset
     end
 
     def self.find(descriptor)
-      if descriptor == ""
+      if descriptor.blank?
         # this is me
         new
       else
-        parts = descriptor.split('-')
-        klass = lookup(parts.shift)
+        first, rest = descriptor.match(/^([^-]+)-?(.*)/).captures
+        klass = lookup(first)
         return nil if klass.nil? # no match, unrecognized calculation
-        klass.find(parts.join('-'))
+        klass.find(rest)
+
+        # parts = descriptor.split('-')
+        # klass = lookup(parts.shift)
+        # return nil if klass.nil? # no match, unrecognized calculation
+        # klass.find(parts.join('-'))
       end
     end
   end
@@ -210,7 +215,7 @@ module Dataset
     terminal
 
     def self.find(descriptor)
-      if descriptor == ""
+      if descriptor.blank?
         self
       else
         self.new(descriptor)
@@ -272,16 +277,16 @@ module Dataset
     attr_reader :dimension_name, :dimension_value, :invert
 
     def self.find(descriptor)
-      if descriptor == ""
+      if descriptor.blank?
         self
       else
-        self.new(*descriptor.split('-'))
+        self.new(*descriptor.match(/^([^-]+)-?(.*)/).captures)
       end
     end
 
     def initialize(name = nil, value = nil, invert = nil)
       @dimension_name = CGI.unescape(name) if name
-      @dimension_value = CGI.unescape(value) if value
+      @dimension_value = CGI.unescape(value) if !value.blank?
       @invert = invert ? true : false
     end
 
@@ -329,7 +334,7 @@ module Dataset
     attr_reader :colnum
 
     def self.find(descriptor)
-      if descriptor == ""
+      if descriptor.blank?
         self
       else
         self.new(*descriptor.split('-'))

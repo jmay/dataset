@@ -319,9 +319,8 @@ describe "extract calculation" do
 
   it "should barf when dimension value is missing" do
     calc = Dataset::Calculation.find("extract-State")
-    calc.target(table = mock)
-    table.stubs(:dimensions).returns([ dim = mock ])
-    dim.stubs(:name).returns('State')
+    table = Dataset::Table.new(:columns => [{:name => 'State', :values => []}])
+    calc.target(table)
     calc.should_not be_ready
   end
 
@@ -377,6 +376,17 @@ describe "extract calculation" do
     spec.columns.size.should == 2
     spec.columns.last.name.should == 'school name'
     spec.constraints.should == {'school district' => 'Los Altos Elementary'}
+  end
+
+  it "should allow dimension values with dashes" do
+    calc = Dataset::Calculation.find("extract-Age+Range-25-39")
+    table = Dataset::Table.new(:columns =>
+      [{:name => 'Age Range', :values => []}, {:name => 'Population', :number => 'People'}])
+    calc.target(table)
+
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'select_where.pl', :args => { :column => 0, :value => '25-39', :invert => 0 }}]
   end
 end
 
