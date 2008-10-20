@@ -454,4 +454,29 @@ module Dataset
         ])
     end
   end
+
+  class CoalesceCalculation < Calculation
+    label 'coalesce'
+    terminal
+    attr_accessor :constituents, :original_spec
+
+    def ready?
+      !@target.nil? && !@constituents.nil? && @constituents.any? && !@original_spec.nil?
+    end
+
+    def recipe
+      if ready?
+        [
+          :command => 'coalesce',
+          :args => {
+            :files => @constituents
+          }
+        ]
+      end
+    end
+
+    def resultspec
+      @original_spec.dup
+    end
+  end
 end

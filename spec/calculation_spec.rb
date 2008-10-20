@@ -539,3 +539,21 @@ describe "monthly rollup of daily data based on end-of-month value" do
     spec.columns[1].units == table.columns[1].units
   end
 end
+
+describe "coalesce calculation" do
+  it "should require target, constituents and spec" do
+    calc = Dataset::Calculation.find("coalesce")
+    calc.should be_terminal
+    calc.should_not be_ready
+
+    calc.target(table = mock)
+    calc.should_not be_ready
+    calc.constituents = [1,2,3]
+    calc.should_not be_ready
+    calc.original_spec = Dataset::Table.new
+    calc.should be_ready
+
+    calc.recipe.should == [{ :command => 'coalesce', :args => {:files => [1,2,3]}}]
+    calc.resultspec.columns.should == calc.original_spec.columns
+  end
+end
