@@ -549,11 +549,25 @@ describe "coalesce calculation" do
     calc.target(table = mock)
     calc.should_not be_ready
     calc.constituents = [1,2,3]
-    calc.should_not be_ready
-    calc.original_spec = Dataset::Table.new
     calc.should be_ready
+  end
 
-    calc.recipe.should == [{ :command => 'coalesce', :args => {:files => [1,2,3]}}]
-    calc.resultspec.columns.should == calc.original_spec.columns
+  it "should construct resultspec from the constituent specs" do
+    calc = Dataset::Calculation.find("coalesce")
+    calc.target(table = mock)
+    t1 = Dataset::Table.new(:nrows => 100, :columns => [ {:chron => 'YYYYMM', :min => 24000, :max => 24023}, {:name => 'Region'}, {:number => 'Units', :min => 200, :max => 600}])
+    t2 = Dataset::Table.new(:nrows => 200, :columns => [ {:chron => 'YYYYMM', :min => 24024, :max => 24047}, {:name => 'Region'}, {:number => 'Units', :min => 400, :max => 800}])
+    t3 = Dataset::Table.new(:nrows => 300, :columns => [ {:chron => 'YYYYMM', :min => 24048, :max => 24071}, {:name => 'Region'}, {:number => 'Units', :min => 300, :max => 900}])
+    calc.constituents = [t1, t2, t3]
+    calc.recipe.should == [{ :command => 'coalesce', :args => {:files => [t1, t2, t3]}}]
+
+    spec = calc.resultspec
+    spec.nrows.should == 600
+    spec.columns[0].should be_chron
+    spec.columns[0].min.index.should == 24000
+    spec.columns[0].max.index.should == 24071
+    spec.columns[2].should be_measure
+    spec.columns[2].min.value.should == 200
+    spec.columns[2].max.value.should == 900
   end
 end

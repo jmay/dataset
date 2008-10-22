@@ -1,4 +1,5 @@
 require "cgi" # for unescape
+require "facets/enumerable/sum" # for summing across arrays
 
 # TODO: baseline
 # TODO: ratio
@@ -458,10 +459,10 @@ module Dataset
   class CoalesceCalculation < Calculation
     label 'coalesce'
     terminal
-    attr_accessor :constituents, :original_spec
+    attr_accessor :constituents
 
     def ready?
-      !@target.nil? && !@constituents.nil? && @constituents.any? && !@original_spec.nil?
+      !@target.nil? && !@constituents.nil? && @constituents.any?
     end
 
     def recipe
@@ -476,7 +477,16 @@ module Dataset
     end
 
     def resultspec
-      @original_spec.dup
+      nrows = constituents.map(&:nrows).compact.sum
+      columndata = constituents.map(&:columns).transpose.map do |cols|
+        newmin = cols.map{|c| c.metadata[:min]}.compact.min
+        newmax = cols.map{|c| c.metadata[:max]}.compact.max
+        col = cols.first.metadata
+        col[:min] = newmin unless newmin.nil?
+        col[:max] = newmax unless newmax.nil?
+        col
+      end
+      Table.new(:nrows => nrows, :columns => columndata)
     end
   end
 end
