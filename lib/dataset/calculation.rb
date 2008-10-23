@@ -489,4 +489,38 @@ module Dataset
       Table.new(:nrows => nrows, :columns => columndata)
     end
   end
+
+  class Subtraction < Calculation
+    label 'aminusb'
+    terminal
+
+    def target2(table)
+      @target2 = table
+    end
+
+    def ready?
+      @target && @target2 && (@target.chron == @target2.chron) && (@target.measure_column.number == @target2.measure_column.number)
+    end
+
+    def recipe
+      if ready?
+        [{
+          :command => 'subtract.rb',
+          :args => {
+            :input => '1',
+            :group1 => @target.columns.find_all {|col| !col.measure?}.map(&:colnum).join(','),
+            :group2 => @target2.columns.find_all {|col| !col.measure?}.map(&:colnum).join(','),
+            :pick1 => @target2.measure_column.colnum,
+            :pick2 => @target2.measure_column.colnum
+          }
+        }]
+      end
+    end
+
+    def resultspec
+      table = @target.dup
+      table.measure_column.name = "#{@target.measure_column.name} minus #{@target2.measure_column.name}"
+      table
+    end
+  end
 end

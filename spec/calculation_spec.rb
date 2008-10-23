@@ -571,3 +571,62 @@ describe "coalesce calculation" do
     spec.columns[2].max.value.should == 900
   end
 end
+
+describe "difference between two tables" do
+  it "should be defined" do
+    calc = Dataset::Calculation.find("aminusb")
+    calc.should be_terminal
+    calc.should_not be_ready
+  end
+
+  it "should require 2 targets" do
+    calc = Dataset::Calculation.find("aminusb")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.should_not be_ready
+    calc.target2(table2)
+    calc.should be_ready
+  end
+
+  it "should check for mismatched chrons" do
+    calc = Dataset::Calculation.find("aminusb")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should_not be_ready
+  end
+
+  it "should reject dimension columns" do
+    calc = Dataset::Calculation.find("aminusb")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => 'State'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should_not be_ready
+
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYYMM'}, {:number => 'Units'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => 'State'}, {:number => 'Units'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should_not be_ready
+  end
+
+  it "should produce recipe & spec" do
+    calc = Dataset::Calculation.find("aminusb")
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => "LIBOR", :number => 'Percent'}])
+    table2 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => "Fed", :number => 'Percent'}])
+    calc.target(table1)
+    calc.target2(table2)
+    calc.should be_ready
+
+    calc.recipe.should == [{:command => 'subtract.rb', :args => { :input => "1", :group1 => "0", :group2 => "0", :pick1 => 1, :pick2 => 1 }}]
+
+    spec = calc.resultspec
+    spec.columns.size.should == 2
+    spec.columns[0].chron.should == Dataset::Chron::YYYY
+    spec.columns[1].units.label.should == 'Percent'
+    spec.columns[1].name.should == "LIBOR minus Fed"
+  end
+end
