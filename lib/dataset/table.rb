@@ -121,7 +121,7 @@ module Dataset
 
       input = nil
       if args[:reverse]
-        input = IO.popen("cat #{datafile} | sort -t\\t -k#{chron_column.colnum+1}nr")
+        input = IO.popen("cat #{datafile} | sort -t$'\\t' -k#{chron_column.colnum+1}nr")
       else
         input = File.open(datafile)
       end

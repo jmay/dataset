@@ -499,7 +499,7 @@ module Dataset
     end
 
     def ready?
-      @target && @target2 && (@target.chron == @target2.chron) && (@target.measure_column.number == @target2.measure_column.number)
+      @target && @target2 && (@target.chron == @target2.chron) && (@target.measure_column.units.label == @target2.measure_column.units.label)
     end
 
     def recipe

@@ -615,7 +615,7 @@ describe "difference between two tables" do
 
   it "should produce recipe & spec" do
     calc = Dataset::Calculation.find("aminusb")
-    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => "LIBOR", :number => 'Percent'}])
+    table1 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => "LIBOR", :number => 'Percent', :decimals => 5}])
     table2 = Dataset::Table.new(:columns => [{:chron => 'YYYY'}, {:name => "Fed", :number => 'Percent'}])
     calc.target(table1)
     calc.target2(table2)
