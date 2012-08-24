@@ -1,4 +1,7 @@
-require "spec"
+require 'rspec/autorun'
+require File.expand_path('../../lib/dataset', __FILE__)
+
+# require "spec"
 
 Spec::Runner.configure do |config|
   config.mock_with :mocha
@@ -26,8 +29,8 @@ end
 #   f.read
 # end
 
-$LOAD_PATH.unshift(File.dirname(__FILE__) + "/../lib")
-require "dataset"
+# $LOAD_PATH.unshift(File.dirname(__FILE__) + "/../lib")
+# require "dataset"
 
 def testdata(name)
   File.open(File.dirname(__FILE__) + "/testdata/#{name}").read
