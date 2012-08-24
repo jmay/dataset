@@ -46,7 +46,7 @@ describe "monthly deltas calculation" do
         :name => 'Sales'}
        ])
     @calc.target(table)
-    # table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    # table.should_receive(:chron).and_return(Dataset::Chron::YYYYMM)
     # table.
     @calc.should be_ready
     @calc.recipe.should == [{ :command => 'deltas', :args => {:ordercol => 0, :datacol => 1, :interval => 1, :percent => "1" }}]
@@ -62,15 +62,15 @@ describe "monthly deltas calculation" do
 
   it "should require a target with a chron" do
     @calc.target(table = mock)
-    table.expects(:chron).returns(nil)
+    table.should_receive(:chron).and_return(nil)
     @calc.should_not be_ready
   end
 
   it "should require a target with a monthly chron" do
     @calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYY)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYY)
     @calc.should_not be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYYQ)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYQ)
     @calc.should_not be_ready
   end
 end
@@ -79,11 +79,11 @@ describe "quarterly deltas calculation" do
   it "should require target to have monthly or quarterly chron" do
     calc = Dataset::Calculation.find("chg-pct-qtr")
     calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYMM)
     calc.should be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYYQ)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYQ)
     calc.should be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYY)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYY)
     calc.should_not be_ready
   end
 
@@ -113,11 +113,11 @@ describe "annual diffs calculation" do
   it "should require target to have monthly or quarterly or annual chron" do
     calc = Dataset::Calculation.find("chg-abs-ann")
     calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYMM)
     calc.should be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYYQ)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYQ)
     calc.should be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYY)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYY)
     calc.should be_ready
   end
 
@@ -149,11 +149,11 @@ describe "monthly diffs calculation" do
   it "should require target to have monthly chron" do
     calc = Dataset::Calculation.find("chg-abs-mon")
     calc.target(table = mock)
-    table.stubs(:chron).returns(Dataset::Chron::YYYYMM)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYMM)
     calc.should be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYYQ)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYYQ)
     calc.should_not be_ready
-    table.stubs(:chron).returns(Dataset::Chron::YYYY)
+    table.should_receive(:chron).and_return(Dataset::Chron::YYYY)
     calc.should_not be_ready
   end
 
@@ -207,7 +207,7 @@ describe "baseline calculation" do
     calc = Dataset::Calculation.find("baseline-1995")
 
     calc.target(table = mock)
-    table.stubs(:chron).returns(nil)
+    table.should_receive(:chron).and_return(nil)
 
     calc.should_not be_ready
   end
@@ -327,8 +327,8 @@ describe "extract calculation" do
   it "should barf when dimension value is missing" do
     calc = Dataset::Calculation.find("extract-State")
     calc.target(table = mock)
-    table.stubs(:dimensions).returns([ dim = mock ])
-    dim.stubs(:name).returns('State')
+    # table.should_receive(:dimensions).and_return([ dim = mock ])
+    # dim.should_receive(:name).and_return('State')
     calc.should_not be_ready
   end
 

@@ -4,7 +4,7 @@ module Dataset
 
     def initialize(args)
       @rows = []
-      args[:input].each do |line|
+      args[:input].each_line do |line|
         @rows << line.chomp.split(/\t/)
       end
       analyze

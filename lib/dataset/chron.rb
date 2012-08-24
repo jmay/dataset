@@ -856,7 +856,7 @@ module Dataset
       end
 
       def init_numeric(value)
-        @internal = Date.jd(Date.mjd_to_jd(value))
+        @internal = Date.jd(value + 2400001)
       end
 
       def value
