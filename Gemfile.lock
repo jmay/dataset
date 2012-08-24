@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dataset (0.12.0)
+    dataset (0.12.1)
       hpricot
       uuidtools
 
