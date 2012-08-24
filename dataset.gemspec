@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'uuidtools'
   gem.add_dependency 'hpricot'
-  gem.add_dependency 'facets'
+  # gem.add_dependency 'facets'
 
   gem.add_development_dependency "rake", "~> 0.9.2"
   gem.add_development_dependency "rspec", "~> 2.9.0"

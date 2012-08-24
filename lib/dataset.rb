@@ -1,4 +1,4 @@
-require "facets"
+# require "facets"
 
 require "dataset/util"
 
