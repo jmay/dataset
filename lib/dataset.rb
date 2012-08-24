@@ -1,3 +1,5 @@
+require "facets"
+
 require "dataset/util"
 
 require "dataset/extractor"

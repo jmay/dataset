@@ -27,7 +27,7 @@ covering any of the features listed above.
 
 require "hpricot"
 require "csv"
-require "fastercsv"
+# require "fastercsv"
 require "enumerator"
 
 module Extractor
@@ -493,7 +493,8 @@ module Extractor
       # collapses blank lines
       @text.split(/\r\n?|\n/).each do |line|
         begin
-          @data << FasterCSV.parse_line(line).map {|cell| cell.nil? ? nil : cell.strip}
+          # @data << FasterCSV.parse_line(line).map {|cell| cell.nil? ? nil : cell.strip}
+          @data << CSV.parse_line(line).map {|cell| cell.nil? ? nil : cell.strip}
         rescue
           @errors << line
         end

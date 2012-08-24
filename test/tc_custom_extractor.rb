@@ -57,7 +57,8 @@ class TestExtractor < Test::Unit::TestCase
 
     csv = []
     assert_raise(CSV::IllegalFormatError) { CSV.parse(txt) } # this throws an exception
-    assert_raise(FasterCSV::MalformedCSVError) { FasterCSV.parse(txt) } # so does this
+    # assert_raise(FasterCSV::MalformedCSVError) { FasterCSV.parse(txt) } # so does this
+    assert_raise(CSV::MalformedCSVError) { CSV.parse(txt) } # so does this
     txt.each_line {|line| csv << CSV.parse_line(line)} # CSV.parse_line ignores the exceptions
 
     ce.run(testdata("csv_test_data2.txt").gsub!(/\n/, "\r"))

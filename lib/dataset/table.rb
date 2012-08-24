@@ -1,9 +1,9 @@
 # TODO: consider renaming Table to TableSpec or Tablespec
 # TODO: user-provided vs system-automated metadata, esp. user-provided column labels
 
-require "facets/hash"
-require "facets/blank"
-require "facets/enumerable/none" # for Array#none?
+# require "facets/hash"
+# require "facets/blank"
+# require "facets/enumerable/none" # for Array#none?
 
 module Dataset
   class Table

@@ -1,5 +1,5 @@
 require "cgi" # for unescape
-require "facets/enumerable/sum" # for summing across arrays
+# require "facets/enumerable/sum" # for summing across arrays
 
 # TODO: baseline
 # TODO: ratio

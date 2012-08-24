@@ -3,8 +3,9 @@ require File.expand_path('../../lib/dataset', __FILE__)
 
 # require "spec"
 
-Spec::Runner.configure do |config|
-  config.mock_with :mocha
+# Spec::Runner.configure do |config|
+RSpec.configure do |config|
+  # config.mock_with :mocha
 
   # config.use_transactional_fixtures = true
   # config.use_instantiated_fixtures  = false

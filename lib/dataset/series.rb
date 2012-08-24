@@ -1,4 +1,4 @@
-require "generator" # used for iterating across multiple series in parallel for set arithmetic
+# require "generator" # used for iterating across multiple series in parallel for set arithmetic
 require "csv"
 
 module Dataset
